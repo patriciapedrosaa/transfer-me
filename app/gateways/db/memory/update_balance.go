@@ -1,15 +1,17 @@
 package memory
 
-import "github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+import (
+	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
+)
 
-func (m MemoryStorage) UpdateBalance(account entities.Account, value int) error {
-	_, err := m.GetByCpf(string(account.CPF))
+func (m MemoryStorage) UpdateBalance(cpf vos.CPF, value int) error {
+	_, err := m.GetByCpf(string(cpf))
 	if err != nil {
 		return err
 	}
-	accountStored, _ := m.storageAccount[string(account.CPF)]
+	accountStored := m.storageAccount[string(cpf)]
 	accountStored.balance = value
-	m.storageAccount[string(account.CPF)] = accountStored
+	m.storageAccount[string(cpf)] = accountStored
 
 	return nil
 }
