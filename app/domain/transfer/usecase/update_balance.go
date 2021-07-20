@@ -1,26 +1,30 @@
 package usecase
 
-import "github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+import (
+	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
+)
 
-func (t Transfer) UpdateBalance(originAccount, destinationAccount entities.Account, amount int) error {
-	_, err := t.accountRepository.GetByCpf(string(originAccount.CPF))
+func (t Transfer) UpdateBalance(originAccountCPF, destinationAccountCPF vos.CPF, amount int) error {
+	originAccount, err := t.accountRepository.GetByCpf(string(originAccountCPF))
 	if err != nil {
 		return err
 	}
-	_, err = t.accountRepository.GetByCpf(string(destinationAccount.CPF))
+	destinationAccount, err := t.accountRepository.GetByCpf(string(destinationAccountCPF))
 	if err != nil {
 		return err
 	}
 
 	updatedOriginBalance := originAccount.Balance - amount
-	updatedDestinationBalance := originAccount.Balance + amount
+	updatedDestinationBalance := destinationAccount.Balance + amount
 
-	err = t.transferRepository.UpdateBalance(originAccount, updatedOriginBalance)
+	err = t.transferRepository.UpdateBalance(originAccountCPF, updatedOriginBalance)
 	if err != nil {
 		return err
 	}
-	err = t.transferRepository.UpdateBalance(destinationAccount, updatedDestinationBalance)
+	err = t.transferRepository.UpdateBalance(destinationAccountCPF, updatedDestinationBalance)
 	if err != nil {
+		updatedOriginBalance =updatedOriginBalance + amount
+		t.transferRepository.UpdateBalance(originAccountCPF, updatedOriginBalance)
 		return err
 	}
 	return nil

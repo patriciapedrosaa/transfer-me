@@ -11,7 +11,7 @@ import (
 
 func TestUpdateBalance(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
-	transferStorage := make(map[string]memory.Transfer)
+	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage)
 	accountUsecase := au.NewAccountUsecase(&memoryStorage)
 
@@ -38,13 +38,6 @@ func TestUpdateBalance(t *testing.T) {
 
 	transferUsecase := NewTransferUsecase(&memoryStorage, &memoryStorage)
 
-	transfer := CreateTransferInput{
-		OriginAccountCPF:      string(account1.CPF),
-		DestinationAccountCPF: string(account2.CPF),
-		Amount:                50,
-	}
-	_, _ = transferUsecase.Create(transfer)
-
 	tests := []struct {
 		name               string
 		originAccount      entities.Account
@@ -54,14 +47,14 @@ func TestUpdateBalance(t *testing.T) {
 	}{
 		{
 			name:               "should update balances successfully",
-			amount:             100,
+			amount:             10,
 			originAccount:      account1,
 			destinationAccount: account2,
 			wantErr:            nil,
 		},
 		{
 			name:               "should return an error because account was not found",
-			amount:             50,
+			amount:             100,
 			originAccount:      fakeAccount,
 			destinationAccount: account1,
 			wantErr:            errors.New("not found"),
@@ -69,15 +62,15 @@ func TestUpdateBalance(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := transferUsecase.UpdateBalance(tt.originAccount, tt.destinationAccount, tt.amount)
+			err := transferUsecase.UpdateBalance(tt.originAccount.CPF, tt.destinationAccount.CPF, tt.amount)
 			accountOrigin, _ := accountUsecase.GetByCpf(string(account1.CPF))
 			accountDestiny, _ := accountUsecase.GetByCpf(string(account2.CPF))
 
 			assert.Equal(t, tt.wantErr, err)
 
 			if err == nil {
-				assert.Equal(t, accountOrigin.Balance, 0)
-				assert.Equal(t, accountDestiny.Balance, 200)
+				assert.Equal(t, accountOrigin.Balance, 90)
+				assert.Equal(t, accountDestiny.Balance, 110)
 			}
 		})
 	}
