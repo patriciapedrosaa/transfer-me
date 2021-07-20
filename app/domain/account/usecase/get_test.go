@@ -9,7 +9,7 @@ import (
 
 func TestGetAccount(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
-	transferStorage := make(map[string]memory.Transfer)
+	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage)
 	accountUsecase := NewAccountUsecase(&memoryStorage)
 	fakeAccount1 := CreateAccountInput{
@@ -35,13 +35,13 @@ func TestGetAccount(t *testing.T) {
 			wantErr: nil,
 			wantResult: []entities.Account{
 				{
-					Name:   "Tales Mileto",
-					CPF:    "12345678911",
+					Name:    "Tales Mileto",
+					CPF:     "12345678911",
 					Balance: 100,
 				},
 				{
-					Name:   "Pitágoras",
-					CPF:    "12345678910",
+					Name:    "Pitágoras",
+					CPF:     "12345678910",
 					Balance: 100,
 				},
 			},

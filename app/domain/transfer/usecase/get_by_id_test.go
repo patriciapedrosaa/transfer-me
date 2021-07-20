@@ -10,7 +10,7 @@ import (
 
 func TestGetTransfers(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
-	transferStorage := make(map[string]memory.Transfer)
+	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage)
 	accountUsecase := au.NewAccountUsecase(&memoryStorage)
 
@@ -68,7 +68,7 @@ func TestGetTransfers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			transfers, err := transferUsecase.GetTransfers()
+			transfers, err := transferUsecase.GetTransfersByID(account1.AccountID)
 
 			for k, _ := range transfers {
 				assert.Equal(t, tt.wantResult[k].AccountOriginID, transfers[k].AccountOriginID)
