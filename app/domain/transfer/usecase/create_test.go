@@ -11,7 +11,7 @@ import (
 
 func TestCreateTransfer(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
-	transferStorage := make(map[string]memory.Transfer)
+	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage)
 	accountUsecase := au.NewAccountUsecase(&memoryStorage)
 
@@ -31,6 +31,13 @@ func TestCreateTransfer(t *testing.T) {
 
 	transferUsecase := NewTransferUsecase(&memoryStorage, &memoryStorage)
 
+	fakeTransfer := CreateTransferInput{
+		OriginAccountCPF:      "12345678911",
+		DestinationAccountCPF: "12345678910",
+		Amount:                20,
+	}
+	_,_ = transferUsecase.Create(fakeTransfer)
+
 	tests := []struct {
 		name       string
 		inputs     CreateTransferInput
@@ -49,6 +56,20 @@ func TestCreateTransfer(t *testing.T) {
 				AccountOriginID:      account1.AccountID,
 				AccountDestinationID: account2.AccountID,
 				Amount:               50,
+			},
+		},
+		{
+			name: "should return another transfer successfully",
+			inputs: CreateTransferInput{
+				OriginAccountCPF:      "12345678911",
+				DestinationAccountCPF: "12345678910",
+				Amount:                10,
+			},
+			wantErr: nil,
+			wantResult: entities.Transfer{
+				AccountOriginID:      account2.AccountID,
+				AccountDestinationID: account1.AccountID,
+				Amount:                10,
 			},
 		},
 		{

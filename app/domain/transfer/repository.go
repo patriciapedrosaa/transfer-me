@@ -1,9 +1,12 @@
 package transfer
 
-import "github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+import (
+	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
+)
 
 type Repository interface {
-	GetTransfers() ([]entities.Transfer, error)
-	CreateTransfer(transfer entities.Transfer) error
-	UpdateBalance(account entities.Account, value int) error
+	CreateTransfer(transfer entities.Transfer, accountID string) error
+	GetTransfersByID(accountID string) ([]entities.Transfer, error)
+	UpdateBalance(cpf vos.CPF, value int) error
 }

@@ -8,7 +8,7 @@ import (
 
 func TestGetBlance(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
-	transferStorage := make(map[string]memory.Transfer)
+	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage)
 	accountUsecase := NewAccountUsecase(&memoryStorage)
 	fakeAccount1 := CreateAccountInput{
@@ -28,7 +28,7 @@ func TestGetBlance(t *testing.T) {
 			name:       "should return balance successfully",
 			cpf:        "12345678911",
 			wantErr:    nil,
-			wantResult: 0,
+			wantResult: 100,
 		},
 	}
 	for _, tt := range tests {

@@ -10,7 +10,7 @@ import (
 
 func TestGetById(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
-	transferStorage := make(map[string]memory.Transfer)
+	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage)
 	accountUsecase := NewAccountUsecase(&memoryStorage)
 
