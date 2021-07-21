@@ -4,7 +4,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 )
 
-func (m MemoryStorage) GetTransfersByID(accountID string) ([]entities.Transfer, error) {
+func (m MemoryStorage) GetTransfersByAccountID(accountID string) ([]entities.Transfer, error) {
 	transfersList, exists := m.storageTransfer[accountID]
 	if !exists {
 		return []entities.Transfer{}, errNotFound

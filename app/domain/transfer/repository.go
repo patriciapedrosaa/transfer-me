@@ -6,5 +6,5 @@ import (
 
 type Repository interface {
 	CreateTransfer(transfer entities.Transfer, accountID string) error
-	GetTransfersByID(accountID string) ([]entities.Transfer, error)
+	GetTransfersByAccountID(accountID string) ([]entities.Transfer, error)
 }
