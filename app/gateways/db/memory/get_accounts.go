@@ -3,6 +3,7 @@ package memory
 import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
+	"sort"
 )
 
 func (m MemoryStorage) GetAccounts() ([]entities.Account, error) {
@@ -20,5 +21,9 @@ func (m MemoryStorage) GetAccounts() ([]entities.Account, error) {
 
 		accounts = append(accounts, account)
 	}
+	sort.Slice(accounts[:], func(i, j int) bool {
+		return accounts[i].CPF < accounts[j].CPF
+	})
+
 	return accounts, nil
 }
