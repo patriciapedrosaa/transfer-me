@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGetAccount(t *testing.T) {
+func TestGetAccounts(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage)

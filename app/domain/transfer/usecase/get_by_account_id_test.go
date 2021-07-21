@@ -68,7 +68,7 @@ func TestGetTransfers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			transfers, err := transferUsecase.GetTransfersByID(account1.AccountID)
+			transfers, err := transferUsecase.GetTransfersByAccountID(account1.AccountID)
 
 			for k, _ := range transfers {
 				assert.Equal(t, tt.wantResult[k].AccountOriginID, transfers[k].AccountOriginID)
