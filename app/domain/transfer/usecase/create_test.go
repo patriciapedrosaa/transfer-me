@@ -4,6 +4,7 @@ import (
 	"errors"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -36,7 +37,8 @@ func TestCreateTransfer(t *testing.T) {
 		DestinationAccountCPF: "12345678910",
 		Amount:                20,
 	}
-	_,_ = transferUsecase.Create(fakeTransfer)
+	_, _ = transferUsecase.Create(fakeTransfer)
+	_ = accountUsecase.UpdateBalance(vos.CPF(fakeTransfer.OriginAccountCPF), vos.CPF(fakeTransfer.DestinationAccountCPF), fakeTransfer.Amount)
 
 	tests := []struct {
 		name       string
@@ -69,7 +71,7 @@ func TestCreateTransfer(t *testing.T) {
 			wantResult: entities.Transfer{
 				AccountOriginID:      account2.AccountID,
 				AccountDestinationID: account1.AccountID,
-				Amount:                10,
+				Amount:               10,
 			},
 		},
 		{
