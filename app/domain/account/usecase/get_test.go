@@ -12,14 +12,15 @@ func TestGetAccount(t *testing.T) {
 	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage)
 	accountUsecase := NewAccountUsecase(&memoryStorage)
+
 	fakeAccount1 := CreateAccountInput{
 		Name:   "Tales Mileto",
-		CPF:    "12345678911",
+		CPF:    "12345678910",
 		Secret: "foobar",
 	}
 	fakeAccount2 := CreateAccountInput{
 		Name:   "Pitágoras",
-		CPF:    "12345678910",
+		CPF:    "12345678911",
 		Secret: "foobar",
 	}
 	_, _ = accountUsecase.Create(fakeAccount1)
@@ -36,12 +37,12 @@ func TestGetAccount(t *testing.T) {
 			wantResult: []entities.Account{
 				{
 					Name:    "Tales Mileto",
-					CPF:     "12345678911",
+					CPF:     "12345678910",
 					Balance: 100,
 				},
 				{
 					Name:    "Pitágoras",
-					CPF:     "12345678910",
+					CPF:     "12345678911",
 					Balance: 100,
 				},
 			},
@@ -49,9 +50,10 @@ func TestGetAccount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := accountUsecase.GetAccount()
+			got, err := accountUsecase.GetAccounts()
 
 			for k, _ := range got {
+				assert.Equal(t, tt.wantResult[k].Name, got[k].Name)
 				assert.Equal(t, tt.wantResult[k].Name, got[k].Name)
 				assert.Equal(t, tt.wantResult[k].CPF, got[k].CPF)
 				assert.Equal(t, tt.wantResult[k].Balance, got[k].Balance)

@@ -27,9 +27,5 @@ func (t Transfer) Create(input CreateTransferInput) (entities.Transfer, error) {
 	if err != nil {
 		return entities.Transfer{}, err
 	}
-	err = t.UpdateBalance(originAccount.CPF, destinationAccount.CPF, input.Amount)
-	if err != nil {
-		return entities.Transfer{}, err
-	}
 	return transfer, nil
 }

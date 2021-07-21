@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
@@ -13,15 +12,15 @@ func TestUpdateBalance(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage)
-	accountUsecase := au.NewAccountUsecase(&memoryStorage)
+	accountUsecase := NewAccountUsecase(&memoryStorage)
 
-	createAccountInput1 := au.CreateAccountInput{
+	createAccountInput1 := CreateAccountInput{
 		Name:   "John Locke",
 		CPF:    "12345678910",
 		Secret: "foobar",
 	}
 
-	createAccountInput2 := au.CreateAccountInput{
+	createAccountInput2 := CreateAccountInput{
 		Name:   "Karl Marx",
 		CPF:    "12345678911",
 		Secret: "foobar",
@@ -35,8 +34,6 @@ func TestUpdateBalance(t *testing.T) {
 		Secret:    "secret",
 		Balance:   100,
 	}
-
-	transferUsecase := NewTransferUsecase(&memoryStorage, &memoryStorage)
 
 	tests := []struct {
 		name               string
@@ -62,7 +59,7 @@ func TestUpdateBalance(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := transferUsecase.UpdateBalance(tt.originAccount.CPF, tt.destinationAccount.CPF, tt.amount)
+			err := accountUsecase.UpdateBalance(tt.originAccount.CPF, tt.destinationAccount.CPF, tt.amount)
 			accountOrigin, _ := accountUsecase.GetByCpf(string(account1.CPF))
 			accountDestiny, _ := accountUsecase.GetByCpf(string(account2.CPF))
 
