@@ -6,7 +6,10 @@ import (
 	"log"
 )
 
-var ErrInvalidSecret = errors.New("invalid secret")
+var (
+	ErrInvalidSecret            = errors.New("invalid secret")
+	ErrDifferentHashAndPassword = errors.New("password hashes are not same")
+)
 
 type Secret string
 
@@ -28,4 +31,12 @@ func HashAndSalt(secret Secret) string {
 		log.Println(err)
 	}
 	return string(hash)
+}
+
+func CompareHashAndSecret(secret string, hash string) error {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(secret))
+	if err != nil {
+		return ErrDifferentHashAndPassword
+	}
+	return nil
 }
