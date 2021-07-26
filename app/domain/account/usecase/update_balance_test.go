@@ -11,7 +11,8 @@ import (
 func TestUpdateBalance(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	transferStorage := make(map[string][]memory.Transfer)
-	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage)
+	authenticationStorage := make(map[string]memory.Token)
+	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, authenticationStorage)
 	accountUsecase := NewAccountUsecase(&memoryStorage)
 
 	createAccountInput1 := CreateAccountInput{
