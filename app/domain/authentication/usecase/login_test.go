@@ -9,10 +9,9 @@ import (
 
 func TestCheckLogin(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
-	transferStorage := make(map[string][]memory.Transfer)
 	authenticationStorage := make(map[string]memory.Token)
-	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, authenticationStorage)
-	authenticationUsecase := NewTransferUsecase(&memoryStorage, &memoryStorage)
+	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, authenticationStorage)
+	authenticationUsecase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
 	accountUsecase := au.NewAccountUsecase(&memoryStorage)
 
 	accountTest := au.CreateAccountInput{
@@ -20,12 +19,13 @@ func TestCheckLogin(t *testing.T) {
 		CPF:    "12345678910",
 		Secret: "foobar",
 	}
-	_, _ = accountUsecase.Create(accountTest)
+	accountCreated, _ := accountUsecase.Create(accountTest)
 
 	t.Run("should return valid login successfully", func(t *testing.T) {
 		inputs := LoginInputs{
-			CPF:    "12345678910",
-			Secret: "foobar",
+			CPF:     "12345678910",
+			Secret:  "foobar",
+			Account: accountCreated,
 		}
 		got, err := authenticationUsecase.CheckLogin(inputs)
 		assert.Nil(t, err)
