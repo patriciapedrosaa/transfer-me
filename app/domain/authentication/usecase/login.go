@@ -15,8 +15,8 @@ type LoginInputs struct {
 }
 
 func (a Authentication) CheckLogin(inputs LoginInputs) (bool, error) {
-	invalidCPF := inputs.CPF != string(inputs.Account.CPF)
-	if invalidCPF {
+	isValidCPF := inputs.CPF == string(inputs.Account.CPF)
+	if !isValidCPF {
 		return false, ErrInvalidCredentials
 	}
 	err := vos.CompareHashAndSecret(inputs.Secret, string(inputs.Account.Secret))
