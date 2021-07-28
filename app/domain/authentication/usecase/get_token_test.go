@@ -14,7 +14,7 @@ func TestGetToken(t *testing.T) {
 	transferStorage := make(map[string][]memory.Transfer)
 	authenticationStorage := make(map[string]memory.Token)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, authenticationStorage)
-	authenticationUsecase := NewTransferUsecase(&memoryStorage, &memoryStorage)
+	authenticationUsecase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
 
 	token := memory.Token{
 		ID:        uuid.New().String(),

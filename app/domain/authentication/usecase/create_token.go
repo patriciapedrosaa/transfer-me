@@ -3,7 +3,6 @@ package usecase
 import (
 	"github.com/golang-jwt/jwt"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
-	"os"
 )
 
 func (a Authentication) CreateToken(login LoginInputs) (string, error) {
@@ -12,22 +11,12 @@ func (a Authentication) CreateToken(login LoginInputs) (string, error) {
 		return "", err
 	}
 
-	account, err := a.accountRepository.GetByCpf(login.CPF)
-	if err != nil {
-		return "", err
-	}
-
-	token, err := entities.NewCreateToken(account.Name, account.AccountID)
+	token, err := entities.NewCreateToken(login.Account.Name, login.Account.AccountID)
 	if err != nil {
 		return "", err
 	}
 
 	err = a.authenticationRepository.CreateToken(token)
-	if err != nil {
-		return "", err
-	}
-
-	err = os.Setenv("ACCESS_SECRET", "dons deed crop fame blat lacy")
 	if err != nil {
 		return "", err
 	}
@@ -40,9 +29,9 @@ func (a Authentication) CreateToken(login LoginInputs) (string, error) {
 		"iat":  token.IssuedAt,
 		"exp":  token.ExpiredAt,
 	}
-
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
-	accessTokenString, err := accessToken.SignedString([]byte(os.Getenv("ACCESS_SECRET")))
+	accessTokenString, err := accessToken.SignedString([]byte(a.accessSecret))
+
 	if err != nil {
 		return "", err
 	}

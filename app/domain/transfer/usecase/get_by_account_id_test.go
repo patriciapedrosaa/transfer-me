@@ -11,8 +11,7 @@ import (
 func TestGetTransfers(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	transferStorage := make(map[string][]memory.Transfer)
-	authenticationStorage := make(map[string]memory.Token)
-	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, authenticationStorage)
+	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, nil)
 	accountUsecase := au.NewAccountUsecase(&memoryStorage)
 
 	createAccountInput1 := au.CreateAccountInput{

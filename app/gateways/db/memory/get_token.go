@@ -5,8 +5,8 @@ import (
 )
 
 func (m MemoryStorage) GetToken(id string) (entities.Token, error) {
-	token := m.storageAuthentication[id]
-	if token.ID == "" {
+	token, ok := m.storageAuthentication[id]
+	if !ok {
 		return entities.Token{}, errNotFound
 	}
 

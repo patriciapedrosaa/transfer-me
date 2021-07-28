@@ -9,21 +9,21 @@ import (
 
 func TestValidatesToken(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
-	transferStorage := make(map[string][]memory.Transfer)
 	authenticationStorage := make(map[string]memory.Token)
-	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, authenticationStorage)
+	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, authenticationStorage)
 	accountUsecase := au.NewAccountUsecase(&memoryStorage)
-	authenticationUsecase := NewTransferUsecase(&memoryStorage, &memoryStorage)
+	authenticationUsecase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
 
 	accountTest := au.CreateAccountInput{
 		Name:   "Patricia",
 		CPF:    "12345678918",
 		Secret: "foobar",
 	}
-	_, _ = accountUsecase.Create(accountTest)
+	accountCreated, _ := accountUsecase.Create(accountTest)
 	user1 := LoginInputs{
-		CPF:    "12345678918",
-		Secret: "foobar",
+		CPF:     "12345678918",
+		Secret:  "foobar",
+		Account: accountCreated,
 	}
 
 	token, _ := authenticationUsecase.CreateToken(user1)

@@ -2,22 +2,24 @@ package usecase
 
 import (
 	"errors"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
 )
 
 var ErrInvalidCredentials = errors.New("incorrect username or password")
 
 type LoginInputs struct {
-	CPF    string
-	Secret string
+	CPF     string
+	Secret  string
+	Account entities.Account
 }
 
 func (a Authentication) CheckLogin(inputs LoginInputs) (bool, error) {
-	account, err := a.accountRepository.GetByCpf(inputs.CPF)
-	if err != nil {
+	invalidCPF := inputs.CPF != string(inputs.Account.CPF)
+	if invalidCPF {
 		return false, ErrInvalidCredentials
 	}
-	err = vos.CompareHashAndSecret(inputs.Secret, string(account.Secret))
+	err := vos.CompareHashAndSecret(inputs.Secret, string(inputs.Account.Secret))
 	if err != nil {
 		return false, ErrInvalidCredentials
 	}
