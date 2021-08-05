@@ -1,15 +1,11 @@
 package usecase
 
-import (
-	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
-)
-
-func (a Account) UpdateBalance(originAccountCPF, destinationAccountCPF vos.CPF, amount int) error {
-	originAccount, err := a.repository.GetByCpf(string(originAccountCPF))
+func (a Account) UpdateBalance(originAccountId, destinationAccountId string, amount int) error {
+	originAccount, err := a.repository.GetById(originAccountId)
 	if err != nil {
 		return err
 	}
-	destinationAccount, err := a.repository.GetByCpf(string(destinationAccountCPF))
+	destinationAccount, err := a.repository.GetById(destinationAccountId)
 	if err != nil {
 		return err
 	}
@@ -17,14 +13,14 @@ func (a Account) UpdateBalance(originAccountCPF, destinationAccountCPF vos.CPF, 
 	updatedOriginBalance := originAccount.Balance - amount
 	updatedDestinationBalance := destinationAccount.Balance + amount
 
-	err = a.repository.UpdateBalance(originAccountCPF, updatedOriginBalance)
+	err = a.repository.UpdateBalance(originAccountId, updatedOriginBalance)
 	if err != nil {
 		return err
 	}
-	err = a.repository.UpdateBalance(destinationAccountCPF, updatedDestinationBalance)
+	err = a.repository.UpdateBalance(destinationAccountId, updatedDestinationBalance)
 	if err != nil {
 		updatedOriginBalance = updatedOriginBalance + amount
-		a.repository.UpdateBalance(originAccountCPF, updatedOriginBalance)
+		a.repository.UpdateBalance(originAccountId, updatedOriginBalance)
 		return err
 	}
 	return nil

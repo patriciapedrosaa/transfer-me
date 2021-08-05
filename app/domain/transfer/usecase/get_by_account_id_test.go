@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
@@ -12,15 +13,15 @@ func TestGetTransfers(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, nil)
-	accountUsecase := au.NewAccountUsecase(&memoryStorage)
+	accountUsecase := au.NewAccountUseCase(&memoryStorage)
 
-	createAccountInput1 := au.CreateAccountInput{
+	createAccountInput1 := account.CreateAccountInput{
 		Name:   "John Locke",
 		CPF:    "12345678910",
 		Secret: "foobar",
 	}
 
-	createAccountInput2 := au.CreateAccountInput{
+	createAccountInput2 := account.CreateAccountInput{
 		Name:   "Karl Marx",
 		CPF:    "12345678911",
 		Secret: "foobar",
@@ -31,14 +32,14 @@ func TestGetTransfers(t *testing.T) {
 	transferUsecase := NewTransferUsecase(&memoryStorage, &memoryStorage)
 
 	transfer1 := CreateTransferInput{
-		OriginAccountCPF:      string(account1.CPF),
-		DestinationAccountCPF: string(account2.CPF),
-		Amount:                50,
+		OriginAccountId:      account1.AccountID,
+		DestinationAccountId: account2.AccountID,
+		Amount:               50,
 	}
 	transfer2 := CreateTransferInput{
-		OriginAccountCPF:      string(account1.CPF),
-		DestinationAccountCPF: string(account2.CPF),
-		Amount:                10,
+		OriginAccountId:      account1.AccountID,
+		DestinationAccountId: account2.AccountID,
+		Amount:               10,
 	}
 
 	_, _ = transferUsecase.Create(transfer1)
