@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"github.com/google/uuid"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
@@ -9,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestGetByCpf(t *testing.T) {
+func TestGetById(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, nil)
 	accountUseCase := NewAccountUseCase(&memoryStorage)
@@ -23,13 +24,13 @@ func TestGetByCpf(t *testing.T) {
 
 	tests := []struct {
 		name       string
-		cpf        string
+		id         string
 		wantErr    error
 		wantResult entities.Account
 	}{
 		{
 			name:    "should return an account successfully",
-			cpf:     string(account1.CPF),
+			id:      account1.AccountID,
 			wantErr: nil,
 			wantResult: entities.Account{
 				Name:    "Dino Thomas",
@@ -39,14 +40,14 @@ func TestGetByCpf(t *testing.T) {
 		},
 		{
 			name:       "should return err not found",
-			cpf:        "12345678922",
+			id:         uuid.New().String(),
 			wantErr:    errors.New("not found"),
 			wantResult: entities.Account{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := accountUseCase.GetByCpf(tt.cpf)
+			got, err := accountUseCase.GetById(tt.id)
 
 			assert.Equal(t, tt.wantResult.Name, got.Name)
 			assert.Equal(t, tt.wantResult.CPF, got.CPF)

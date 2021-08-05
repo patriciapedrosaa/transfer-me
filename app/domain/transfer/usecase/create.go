@@ -5,17 +5,17 @@ import (
 )
 
 type CreateTransferInput struct {
-	OriginAccountCPF      string
-	DestinationAccountCPF string
-	Amount                int
+	OriginAccountId      string
+	DestinationAccountId string
+	Amount               int
 }
 
 func (t Transfer) Create(input CreateTransferInput) (entities.Transfer, error) {
-	originAccount, err := t.accountRepository.GetByCpf(input.OriginAccountCPF)
+	originAccount, err := t.accountRepository.GetById(input.OriginAccountId)
 	if err != nil {
 		return entities.Transfer{}, err
 	}
-	destinationAccount, err := t.accountRepository.GetByCpf(input.DestinationAccountCPF)
+	destinationAccount, err := t.accountRepository.GetById(input.DestinationAccountId)
 	if err != nil {
 		return entities.Transfer{}, err
 	}

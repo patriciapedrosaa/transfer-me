@@ -2,9 +2,10 @@ package usecase
 
 import (
 	"errors"
+	"github.com/google/uuid"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
-	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -14,15 +15,15 @@ func TestCreateTransfer(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, nil)
-	accountUsecase := au.NewAccountUsecase(&memoryStorage)
+	accountUsecase := au.NewAccountUseCase(&memoryStorage)
 
-	createAccountInput1 := au.CreateAccountInput{
+	createAccountInput1 := account.CreateAccountInput{
 		Name:   "John Locke",
 		CPF:    "12345678910",
 		Secret: "foobar",
 	}
 
-	createAccountInput2 := au.CreateAccountInput{
+	createAccountInput2 := account.CreateAccountInput{
 		Name:   "Karl Marx",
 		CPF:    "12345678911",
 		Secret: "foobar",
@@ -33,12 +34,12 @@ func TestCreateTransfer(t *testing.T) {
 	transferUsecase := NewTransferUsecase(&memoryStorage, &memoryStorage)
 
 	fakeTransfer := CreateTransferInput{
-		OriginAccountCPF:      "12345678911",
-		DestinationAccountCPF: "12345678910",
-		Amount:                20,
+		OriginAccountId:      account1.AccountID,
+		DestinationAccountId: account2.AccountID,
+		Amount:               20,
 	}
 	_, _ = transferUsecase.Create(fakeTransfer)
-	_ = accountUsecase.UpdateBalance(vos.CPF(fakeTransfer.OriginAccountCPF), vos.CPF(fakeTransfer.DestinationAccountCPF), fakeTransfer.Amount)
+	_ = accountUsecase.UpdateBalance(account1.AccountID, account2.AccountID, fakeTransfer.Amount)
 
 	tests := []struct {
 		name       string
@@ -49,9 +50,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return a transfer successfully",
 			inputs: CreateTransferInput{
-				OriginAccountCPF:      string(account1.CPF),
-				DestinationAccountCPF: string(account2.CPF),
-				Amount:                50,
+				OriginAccountId:      account1.AccountID,
+				DestinationAccountId: account2.AccountID,
+				Amount:               50,
 			},
 			wantErr: nil,
 			wantResult: entities.Transfer{
@@ -63,9 +64,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return another transfer successfully",
 			inputs: CreateTransferInput{
-				OriginAccountCPF:      "12345678911",
-				DestinationAccountCPF: "12345678910",
-				Amount:                10,
+				OriginAccountId:      account2.AccountID,
+				DestinationAccountId: account1.AccountID,
+				Amount:               10,
 			},
 			wantErr: nil,
 			wantResult: entities.Transfer{
@@ -77,9 +78,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return an error because account was not found",
 			inputs: CreateTransferInput{
-				OriginAccountCPF:      "12345678915",
-				DestinationAccountCPF: string(account2.CPF),
-				Amount:                50,
+				OriginAccountId:      uuid.New().String(),
+				DestinationAccountId: account2.AccountID,
+				Amount:               50,
 			},
 			wantErr:    errors.New("not found"),
 			wantResult: entities.Transfer{},
@@ -87,9 +88,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return an error because amount is zero",
 			inputs: CreateTransferInput{
-				OriginAccountCPF:      string(account1.CPF),
-				DestinationAccountCPF: string(account2.CPF),
-				Amount:                0,
+				OriginAccountId:      account1.AccountID,
+				DestinationAccountId: account2.AccountID,
+				Amount:               0,
 			},
 			wantErr:    errors.New("the amount must be greater than zero"),
 			wantResult: entities.Transfer{},
@@ -97,9 +98,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return an error because amount is negative",
 			inputs: CreateTransferInput{
-				OriginAccountCPF:      string(account1.CPF),
-				DestinationAccountCPF: string(account2.CPF),
-				Amount:                -10,
+				OriginAccountId:      account1.AccountID,
+				DestinationAccountId: account2.AccountID,
+				Amount:               -10,
 			},
 			wantErr:    errors.New("the amount must be greater than zero"),
 			wantResult: entities.Transfer{},
@@ -107,9 +108,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return an error because accounts are equals",
 			inputs: CreateTransferInput{
-				OriginAccountCPF:      string(account1.CPF),
-				DestinationAccountCPF: string(account1.CPF),
-				Amount:                50,
+				OriginAccountId:      account1.AccountID,
+				DestinationAccountId: account1.AccountID,
+				Amount:               50,
 			},
 			wantErr:    errors.New("accounts must be different"),
 			wantResult: entities.Transfer{},
@@ -117,9 +118,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return an error because insufficient funds",
 			inputs: CreateTransferInput{
-				OriginAccountCPF:      string(account1.CPF),
-				DestinationAccountCPF: string(account2.CPF),
-				Amount:                500,
+				OriginAccountId:      account1.AccountID,
+				DestinationAccountId: account2.AccountID,
+				Amount:               500,
 			},
 			wantErr:    errors.New("insufficient funds"),
 			wantResult: entities.Transfer{},
