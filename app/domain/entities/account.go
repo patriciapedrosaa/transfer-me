@@ -40,7 +40,7 @@ func NewCreateAccount(name string, secret vos.Secret, cpf vos.CPF) (Account, err
 	hashedSecret := vos.Secret(hash)
 
 	return Account{
-		AccountID: uuid.Must(uuid.NewRandom()).String(),
+		AccountID: uuid.New().String(),
 		Name:      name,
 		CPF:       cpf,
 		Secret:    hashedSecret,
