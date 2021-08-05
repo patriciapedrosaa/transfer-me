@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
@@ -11,37 +12,37 @@ import (
 func TestAccountCreate(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, nil)
-	accountUsecase := NewAccountUsecase(&memoryStorage)
-	fakeAccount := CreateAccountInput{
-		Name:   "Pitágoras",
+	accountUseCase := NewAccountUseCase(&memoryStorage)
+	fakeAccount := account.CreateAccountInput{
+		Name:   "Percy Jackson",
 		CPF:    "12345678913",
 		Secret: "foobar",
 	}
-	accountUsecase.Create(fakeAccount)
+	_, _ = accountUseCase.Create(fakeAccount)
 
 	tests := []struct {
 		name       string
-		inputs     CreateAccountInput
+		inputs     account.CreateAccountInput
 		wantErr    error
 		wantResult entities.Account
 	}{
 		{
 			name: "should creates an account successfully",
-			inputs: CreateAccountInput{
-				Name:   "Tales de Mileto",
+			inputs: account.CreateAccountInput{
+				Name:   "Grover Underwood",
 				CPF:    "12345678910",
 				Secret: "foobar",
 			},
 			wantErr: nil,
 			wantResult: entities.Account{
-				Name:    "Tales de Mileto",
+				Name:    "Grover Underwood",
 				CPF:     "12345678910",
 				Balance: 100,
 			},
 		},
 		{
 			name: "should return an error because name is invalid",
-			inputs: CreateAccountInput{
+			inputs: account.CreateAccountInput{
 				Name:   "",
 				CPF:    "12345678911",
 				Secret: "foobar",
@@ -51,8 +52,8 @@ func TestAccountCreate(t *testing.T) {
 		},
 		{
 			name: "should return an error because cpf is invalid",
-			inputs: CreateAccountInput{
-				Name:   "Tales de Mileto",
+			inputs: account.CreateAccountInput{
+				Name:   "Grover Underwood",
 				CPF:    "123456789",
 				Secret: "foobar",
 			},
@@ -61,8 +62,8 @@ func TestAccountCreate(t *testing.T) {
 		},
 		{
 			name: "should return an error because secret is invalid",
-			inputs: CreateAccountInput{
-				Name:   "Tales de Mileto",
+			inputs: account.CreateAccountInput{
+				Name:   "Grover Underwood",
 				CPF:    "12345678912",
 				Secret: "",
 			},
@@ -71,8 +72,8 @@ func TestAccountCreate(t *testing.T) {
 		},
 		{
 			name: "should return an error because account already exist",
-			inputs: CreateAccountInput{
-				Name:   "Pitágoras",
+			inputs: account.CreateAccountInput{
+				Name:   "Percy Jackson",
 				CPF:    "12345678913",
 				Secret: "foobar",
 			},
@@ -82,7 +83,7 @@ func TestAccountCreate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			accountCreated, err := accountUsecase.Create(tt.inputs)
+			accountCreated, err := accountUseCase.Create(tt.inputs)
 
 			assert.Equal(t, tt.wantResult.Name, accountCreated.Name)
 			assert.Equal(t, tt.wantResult.CPF, accountCreated.CPF)
