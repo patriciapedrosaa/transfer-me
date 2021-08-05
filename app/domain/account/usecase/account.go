@@ -8,7 +8,7 @@ type Account struct {
 	repository account.Repository
 }
 
-func NewAccountUsecase(repository account.Repository) Account {
+func NewAccountUseCase(repository account.Repository) Account {
 	return Account{
 		repository: repository,
 	}
