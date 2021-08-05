@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
@@ -11,15 +12,15 @@ func TestCreateToken(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	authenticationStorage := make(map[string]memory.Token)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, authenticationStorage)
-	authenticationUsecase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
-	accountUsecase := au.NewAccountUsecase(&memoryStorage)
+	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
+	accountUseCase := au.NewAccountUseCase(&memoryStorage)
 
-	accountTest := au.CreateAccountInput{
+	accountTest := account.CreateAccountInput{
 		Name:   "Isaac Newton",
 		CPF:    "12345678910",
 		Secret: "foobar",
 	}
-	accountCreated, _ := accountUsecase.Create(accountTest)
+	accountCreated, _ := accountUseCase.Create(accountTest)
 
 	t.Run("should return a token successfully", func(t *testing.T) {
 		inputs := LoginInputs{
@@ -27,7 +28,7 @@ func TestCreateToken(t *testing.T) {
 			Secret:  "foobar",
 			Account: accountCreated,
 		}
-		tokenGot, err := authenticationUsecase.CreateToken(inputs)
+		tokenGot, err := authenticationUseCase.CreateToken(inputs)
 		assert.Nil(t, err)
 		assert.NotEmpty(t, tokenGot)
 
@@ -57,7 +58,7 @@ func TestCreateToken(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tokenGot, err := authenticationUsecase.CreateToken(tt.inputs)
+			tokenGot, err := authenticationUseCase.CreateToken(tt.inputs)
 
 			assert.Equal(t, tt.wantError, err)
 			assert.Empty(t, tokenGot)
