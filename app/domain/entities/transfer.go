@@ -39,7 +39,7 @@ func NewCreateTransfers(originAccount, destinationAccount Account, amount int) (
 	}
 
 	return Transfer{
-		TransferID:           uuid.Must(uuid.NewRandom()).String(),
+		TransferID:           uuid.New().String(),
 		AccountOriginID:      originAccount.AccountID,
 		AccountDestinationID: destinationAccount.AccountID,
 		Amount:               amount,
