@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
@@ -12,9 +13,9 @@ func TestCheckLogin(t *testing.T) {
 	authenticationStorage := make(map[string]memory.Token)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, authenticationStorage)
 	authenticationUsecase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
-	accountUsecase := au.NewAccountUsecase(&memoryStorage)
+	accountUsecase := au.NewAccountUseCase(&memoryStorage)
 
-	accountTest := au.CreateAccountInput{
+	accountTest := account.CreateAccountInput{
 		Name:   "Isaac Newton",
 		CPF:    "12345678910",
 		Secret: "foobar",
