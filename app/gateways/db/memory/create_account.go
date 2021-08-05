@@ -11,6 +11,6 @@ func (m *MemoryStorage) CreateAccount(account entities.Account) error {
 		balance:   account.Balance,
 		createdAt: account.CreatedAt,
 	}
-	m.storageAccount[string(account.CPF)] = storedAccount
+	m.storageAccount[account.AccountID] = storedAccount
 	return nil
 }
