@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
@@ -10,20 +11,20 @@ import (
 func TestGetAccounts(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, nil)
-	accountUsecase := NewAccountUsecase(&memoryStorage)
+	accountUseCase := NewAccountUseCase(&memoryStorage)
 
-	fakeAccount1 := CreateAccountInput{
-		Name:   "Tales Mileto",
+	fakeAccount1 := account.CreateAccountInput{
+		Name:   "Ronald Weasley",
 		CPF:    "12345678910",
 		Secret: "foobar",
 	}
-	fakeAccount2 := CreateAccountInput{
-		Name:   "Pitágoras",
+	fakeAccount2 := account.CreateAccountInput{
+		Name:   "Ginevra Weasley",
 		CPF:    "12345678911",
 		Secret: "foobar",
 	}
-	_, _ = accountUsecase.Create(fakeAccount1)
-	_, _ = accountUsecase.Create(fakeAccount2)
+	_, _ = accountUseCase.Create(fakeAccount1)
+	_, _ = accountUseCase.Create(fakeAccount2)
 
 	tests := []struct {
 		name       string
@@ -35,12 +36,12 @@ func TestGetAccounts(t *testing.T) {
 			wantErr: nil,
 			wantResult: []entities.Account{
 				{
-					Name:    "Tales Mileto",
+					Name:    "Ronald Weasley",
 					CPF:     "12345678910",
 					Balance: 100,
 				},
 				{
-					Name:    "Pitágoras",
+					Name:    "Ginevra Weasley",
 					CPF:     "12345678911",
 					Balance: 100,
 				},
@@ -49,9 +50,9 @@ func TestGetAccounts(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := accountUsecase.GetAccounts()
+			got, err := accountUseCase.GetAccounts()
 
-			for k, _ := range got {
+			for k := range got {
 				assert.Equal(t, tt.wantResult[k].Name, got[k].Name)
 				assert.Equal(t, tt.wantResult[k].Name, got[k].Name)
 				assert.Equal(t, tt.wantResult[k].CPF, got[k].CPF)
