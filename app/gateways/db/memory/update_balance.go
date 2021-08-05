@@ -1,17 +1,13 @@
 package memory
 
-import (
-	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
-)
-
-func (m MemoryStorage) UpdateBalance(cpf vos.CPF, value int) error {
-	_, err := m.GetByCpf(string(cpf))
+func (m MemoryStorage) UpdateBalance(id string, value int) error {
+	_, err := m.GetById(id)
 	if err != nil {
 		return err
 	}
-	accountStored := m.storageAccount[string(cpf)]
+	accountStored := m.storageAccount[id]
 	accountStored.balance = value
-	m.storageAccount[string(cpf)] = accountStored
+	m.storageAccount[id] = accountStored
 
 	return nil
 }
