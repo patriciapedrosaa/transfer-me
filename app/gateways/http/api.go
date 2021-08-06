@@ -2,16 +2,21 @@ package http
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/patriciapedrosaa/transfer-me/app/gateways/http/account"
 	"log"
 	"net/http"
 )
 
-type Api struct {
-	Account account.Handler
+type AccountHandler interface {
+	Create(w http.ResponseWriter, r *http.Request)
+	Get(w http.ResponseWriter, _ *http.Request)
+	GetBalance(w http.ResponseWriter, r *http.Request)
 }
 
-func NewApi(account account.Handler) Api {
+type Api struct {
+	Account AccountHandler
+}
+
+func NewApi(account AccountHandler) Api {
 	return Api{
 		Account: account,
 	}
