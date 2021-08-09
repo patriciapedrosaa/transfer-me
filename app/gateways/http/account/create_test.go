@@ -62,7 +62,7 @@ func TestCreate(t *testing.T) {
 		http.HandlerFunc(handler.Create).ServeHTTP(response, request)
 
 		got := response.Body.String()
-		expected := `{"error":"invalid request payload"}`
+		expected := `{"error":"invalid fields"}`
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.Equal(t, got, expected)
@@ -85,7 +85,7 @@ func TestCreate(t *testing.T) {
 		http.HandlerFunc(handler.Create).ServeHTTP(response, request)
 
 		got := response.Body.String()
-		expected := `{"error":"invalid request payload"}`
+		expected := `{"error":"invalid fields"}`
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.Equal(t, got, expected)
@@ -93,12 +93,10 @@ func TestCreate(t *testing.T) {
 	})
 
 	t.Run("should return 400 and error when is missing fields", func(t *testing.T) {
-		body := CreateAccountBadRequest{}
-		requestBody, _ := json.Marshal(body)
 		handler := NewHandler(&account.UseCaseMock{CreateFunc: func(input account.CreateAccountInput) (entities.Account, error) {
 			return entities.Account{}, errors.New("invalid request payload")
 		}})
-		request, _ := http.NewRequest(http.MethodPost, "/accounts", bytes.NewReader(requestBody))
+		request, _ := http.NewRequest(http.MethodPost, "/accounts", bytes.NewReader([]byte{}))
 		response := httptest.NewRecorder()
 
 		http.HandlerFunc(handler.Create).ServeHTTP(response, request)
