@@ -35,7 +35,7 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	validator := http_server.NewJSONValidator()
 	err := validator.Validate(body)
-	if err != nil{
+	if err != nil {
 		responseError(w, http.StatusBadRequest, ErrRequiredFields)
 		return
 	}
