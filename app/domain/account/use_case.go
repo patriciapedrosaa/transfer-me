@@ -15,5 +15,6 @@ type UseCase interface {
 	GetAccounts() ([]entities.Account, error)
 	GetBalance(id string) (int, error)
 	GetById(id string) (entities.Account, error)
+	GetByCpf(cpf string) (entities.Account, error)
 	UpdateBalance(originAccountId, destinationAccountId string, amount int) error
 }
