@@ -3,6 +3,7 @@ package usecase
 import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -23,7 +24,7 @@ func TestCheckLogin(t *testing.T) {
 	accountCreated, _ := accountUsecase.Create(accountTest)
 
 	t.Run("should return valid login successfully", func(t *testing.T) {
-		inputs := LoginInputs{
+		inputs := authentication.LoginInputs{
 			CPF:     "12345678910",
 			Secret:  "foobar",
 			Account: accountCreated,
@@ -35,12 +36,12 @@ func TestCheckLogin(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		inputs    LoginInputs
+		inputs    authentication.LoginInputs
 		wantError error
 	}{
 		{
 			name: "should return an error because CPF is invalid",
-			inputs: LoginInputs{
+			inputs: authentication.LoginInputs{
 				CPF:    "12345678911",
 				Secret: "foobar",
 			},
@@ -48,7 +49,7 @@ func TestCheckLogin(t *testing.T) {
 		},
 		{
 			name: "should return an error because secret is invalid",
-			inputs: LoginInputs{
+			inputs: authentication.LoginInputs{
 				CPF:    "12345678910",
 				Secret: "foo",
 			},
