@@ -27,6 +27,9 @@ var _ UseCase = &UseCaseMock{}
 // 			GetBalanceFunc: func(id string) (int, error) {
 // 				panic("mock out the GetBalance method")
 // 			},
+// 			GetByCpfFunc: func(cpf string) (entities.Account, error) {
+// 				panic("mock out the GetByCpf method")
+// 			},
 // 			GetByIdFunc: func(id string) (entities.Account, error) {
 // 				panic("mock out the GetById method")
 // 			},
@@ -49,6 +52,9 @@ type UseCaseMock struct {
 	// GetBalanceFunc mocks the GetBalance method.
 	GetBalanceFunc func(id string) (int, error)
 
+	// GetByCpfFunc mocks the GetByCpf method.
+	GetByCpfFunc func(cpf string) (entities.Account, error)
+
 	// GetByIdFunc mocks the GetById method.
 	GetByIdFunc func(id string) (entities.Account, error)
 
@@ -70,6 +76,11 @@ type UseCaseMock struct {
 			// ID is the id argument value.
 			ID string
 		}
+		// GetByCpf holds details about calls to the GetByCpf method.
+		GetByCpf []struct {
+			// Cpf is the cpf argument value.
+			Cpf string
+		}
 		// GetById holds details about calls to the GetById method.
 		GetById []struct {
 			// ID is the id argument value.
@@ -88,6 +99,7 @@ type UseCaseMock struct {
 	lockCreate        sync.RWMutex
 	lockGetAccounts   sync.RWMutex
 	lockGetBalance    sync.RWMutex
+	lockGetByCpf      sync.RWMutex
 	lockGetById       sync.RWMutex
 	lockUpdateBalance sync.RWMutex
 }
@@ -189,6 +201,41 @@ func (mock *UseCaseMock) GetBalanceCalls() []struct {
 	mock.lockGetBalance.RLock()
 	calls = mock.calls.GetBalance
 	mock.lockGetBalance.RUnlock()
+	return calls
+}
+
+// GetByCpf calls GetByCpfFunc.
+func (mock *UseCaseMock) GetByCpf(cpf string) (entities.Account, error) {
+	callInfo := struct {
+		Cpf string
+	}{
+		Cpf: cpf,
+	}
+	mock.lockGetByCpf.Lock()
+	mock.calls.GetByCpf = append(mock.calls.GetByCpf, callInfo)
+	mock.lockGetByCpf.Unlock()
+	if mock.GetByCpfFunc == nil {
+		var (
+			accountOut entities.Account
+			errOut     error
+		)
+		return accountOut, errOut
+	}
+	return mock.GetByCpfFunc(cpf)
+}
+
+// GetByCpfCalls gets all the calls that were made to GetByCpf.
+// Check the length with:
+//     len(mockedUseCase.GetByCpfCalls())
+func (mock *UseCaseMock) GetByCpfCalls() []struct {
+	Cpf string
+} {
+	var calls []struct {
+		Cpf string
+	}
+	mock.lockGetByCpf.RLock()
+	calls = mock.calls.GetByCpf
+	mock.lockGetByCpf.RUnlock()
 	return calls
 }
 
