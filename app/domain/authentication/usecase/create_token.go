@@ -2,10 +2,11 @@ package usecase
 
 import (
 	"github.com/golang-jwt/jwt"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 )
 
-func (a Authentication) CreateToken(login LoginInputs) (string, error) {
+func (a Authentication) CreateToken(login authentication.LoginInputs) (string, error) {
 	validUser, err := a.CheckLogin(login)
 	if !validUser {
 		return "", err

@@ -3,6 +3,7 @@ package usecase
 import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -21,7 +22,7 @@ func TestValidatesToken(t *testing.T) {
 		Secret: "foobar",
 	}
 	accountCreated, _ := accountUsecase.Create(accountTest)
-	user1 := LoginInputs{
+	user1 := authentication.LoginInputs{
 		CPF:     "12345678918",
 		Secret:  "foobar",
 		Account: accountCreated,
