@@ -23,7 +23,7 @@ var _ UseCase = &UseCaseMock{}
 // 				panic("mock out the CheckLogin method")
 // 			},
 // 			CreateTokenFunc: func(login LoginInputs) (string, error) {
-// 				panic("mock out the CreateToken method")
+// 				panic("mock out the Login method")
 // 			},
 // 			GetTokenFunc: func(id string) (entities.Token, error) {
 // 				panic("mock out the GetToken method")
@@ -41,7 +41,7 @@ type UseCaseMock struct {
 	// CheckLoginFunc mocks the CheckLogin method.
 	CheckLoginFunc func(inputs LoginInputs) (bool, error)
 
-	// CreateTokenFunc mocks the CreateToken method.
+	// CreateTokenFunc mocks the Login method.
 	CreateTokenFunc func(login LoginInputs) (string, error)
 
 	// GetTokenFunc mocks the GetToken method.
@@ -57,7 +57,7 @@ type UseCaseMock struct {
 			// Inputs is the inputs argument value.
 			Inputs LoginInputs
 		}
-		// CreateToken holds details about calls to the CreateToken method.
+		// Login holds details about calls to the Login method.
 		CreateToken []struct {
 			// Login is the login argument value.
 			Login LoginInputs
@@ -114,7 +114,7 @@ func (mock *UseCaseMock) CheckLoginCalls() []struct {
 	return calls
 }
 
-// CreateToken calls CreateTokenFunc.
+// Login calls CreateTokenFunc.
 func (mock *UseCaseMock) CreateToken(login LoginInputs) (string, error) {
 	callInfo := struct {
 		Login LoginInputs
@@ -134,7 +134,7 @@ func (mock *UseCaseMock) CreateToken(login LoginInputs) (string, error) {
 	return mock.CreateTokenFunc(login)
 }
 
-// CreateTokenCalls gets all the calls that were made to CreateToken.
+// CreateTokenCalls gets all the calls that were made to Login.
 // Check the length with:
 //     len(mockedUseCase.CreateTokenCalls())
 func (mock *UseCaseMock) CreateTokenCalls() []struct {
