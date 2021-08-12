@@ -7,6 +7,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
+	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -42,7 +43,7 @@ func TestCreate(t *testing.T) {
 
 		assert.Equal(t, http.StatusCreated, response.Code)
 		assert.Equal(t, string(expected), strings.TrimSpace(got))
-		assert.Equal(t, JsonContentType, response.Header().Get("Content-Type"))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 
 	})
 
@@ -66,7 +67,7 @@ func TestCreate(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.Equal(t, got, expected)
-		assert.Equal(t, JsonContentType, response.Header().Get("Content-Type"))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 	t.Run("should return 400 and error when body is empty", func(t *testing.T) {
@@ -89,7 +90,7 @@ func TestCreate(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.Equal(t, got, expected)
-		assert.Equal(t, JsonContentType, response.Header().Get("Content-Type"))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 	t.Run("should return 400 and error when is missing fields", func(t *testing.T) {
@@ -106,7 +107,7 @@ func TestCreate(t *testing.T) {
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.Equal(t, got, expected)
-		assert.Equal(t, JsonContentType, response.Header().Get("Content-Type"))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 }

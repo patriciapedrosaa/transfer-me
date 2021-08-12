@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
+	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -26,7 +27,7 @@ func TestHandler_GetBalance(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, got, string(expected))
-		assert.Equal(t, JsonContentType, response.Header().Get("Content-Type"))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 	t.Run("should return 404 when account was not found", func(t *testing.T) {
@@ -43,7 +44,7 @@ func TestHandler_GetBalance(t *testing.T) {
 
 		assert.Equal(t, http.StatusNotFound, response.Code)
 		assert.Equal(t, got, expected)
-		assert.Equal(t, JsonContentType, response.Header().Get("Content-Type"))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 	t.Run("should return 500 and internal server error", func(t *testing.T) {
@@ -60,6 +61,6 @@ func TestHandler_GetBalance(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 		assert.Equal(t, got, expected)
-		assert.Equal(t, JsonContentType, response.Header().Get("Content-Type"))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 }

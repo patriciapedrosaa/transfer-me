@@ -1,6 +1,7 @@
 package account
 
 import (
+	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"net/http"
 )
 
@@ -13,7 +14,7 @@ type GetAccountResponse struct {
 func (h Handler) Get(w http.ResponseWriter, _ *http.Request) {
 	accountsList, err := h.useCase.GetAccounts()
 	if err != nil {
-		responseError(w, http.StatusInternalServerError, "something went wrong")
+		http_server.ResponseError(w, http.StatusInternalServerError, "something went wrong")
 		return
 	}
 
@@ -24,5 +25,5 @@ func (h Handler) Get(w http.ResponseWriter, _ *http.Request) {
 		response[index].CPF = string(account.CPF)
 	}
 
-	responseSuccess(w, http.StatusOK, response)
+	http_server.ResponseSuccess(w, http.StatusOK, response)
 }

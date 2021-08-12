@@ -3,6 +3,7 @@ package account
 import (
 	"errors"
 	"github.com/gorilla/mux"
+	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"net/http"
 )
 
@@ -18,14 +19,14 @@ func (h Handler) GetBalance(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch err {
 		case errNotFound:
-			responseError(w, http.StatusNotFound, "not found")
+			http_server.ResponseError(w, http.StatusNotFound, "not found")
 		default:
-			responseError(w, http.StatusInternalServerError, err.Error())
+			http_server.ResponseError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
 	}
 	response := GetBalanceResponse{
 		Balance: balance,
 	}
-	responseSuccess(w, http.StatusOK, response)
+	http_server.ResponseSuccess(w, http.StatusOK, response)
 }

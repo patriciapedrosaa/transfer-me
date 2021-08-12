@@ -5,10 +5,6 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
 )
 
-const (
-	JsonContentType = "application/json"
-)
-
 type Handler struct {
 	useCase        authentication.UseCase
 	accountUseCase account.UseCase

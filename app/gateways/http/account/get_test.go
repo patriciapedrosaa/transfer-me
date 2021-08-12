@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -31,7 +32,7 @@ func TestGet(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expected, got)
-		assert.Equal(t, JsonContentType, response.Header().Get("Content-Type"))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 	t.Run("should return 200 and a list of accounts", func(t *testing.T) {
@@ -47,7 +48,7 @@ func TestGet(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, string(expected), got)
-		assert.Equal(t, JsonContentType, response.Header().Get("Content-Type"))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 	t.Run("should return 500 and a error message", func(t *testing.T) {
@@ -65,7 +66,7 @@ func TestGet(t *testing.T) {
 
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 		assert.Equal(t, expected, strings.TrimSpace(got))
-		assert.Equal(t, JsonContentType, response.Header().Get("Content-Type"))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 }

@@ -29,14 +29,14 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&body); err != nil {
-		responseError(w, http.StatusBadRequest, ErrInvalidPayload)
+		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidPayload)
 		return
 	}
 
 	validator := http_server.NewJSONValidator()
 	err := validator.Validate(body)
 	if err != nil {
-		responseError(w, http.StatusBadRequest, ErrRequiredFields)
+		http_server.ResponseError(w, http.StatusBadRequest, ErrRequiredFields)
 		return
 	}
 
@@ -50,7 +50,7 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	output, err := h.useCase.Create(input)
 	if err != nil {
-		responseError(w, http.StatusBadRequest, err.Error())
+		http_server.ResponseError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -59,17 +59,5 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		Name:      output.Name,
 	}
 
-	responseSuccess(w, http.StatusCreated, response)
-}
-
-func responseError(w http.ResponseWriter, code int, message string) {
-	responseSuccess(w, code, map[string]string{"error": message})
-}
-
-func responseSuccess(w http.ResponseWriter, code int, payload interface{}) {
-	response, _ := json.Marshal(payload)
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	w.Write(response)
+	http_server.ResponseSuccess(w, http.StatusCreated, response)
 }
