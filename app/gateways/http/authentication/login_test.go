@@ -24,17 +24,16 @@ type LoginBadRequest struct {
 }
 
 func TestLogin(t *testing.T) {
-	body := LoginRequest{
-		CPF:    "12345678910",
-		Secret: "MySecret",
-	}
-	requestBody, _ := json.Marshal(body)
-	responseBody := LoginResponse{
-		Token: TOKEN,
-	}
-
 	t.Run("should return 201 and generate a Token", func(t *testing.T) {
-		handler := createFakeHandler(TOKEN, nil)
+		body := LoginRequest{
+			CPF:    "12345678910",
+			Secret: "MySecret",
+		}
+		requestBody, _ := json.Marshal(body)
+		responseBody := LoginResponse{
+			Token: TOKEN,
+		}
+		handler := createFakeHandler(TOKEN, nil, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
@@ -55,7 +54,7 @@ func TestLogin(t *testing.T) {
 		}
 		requestBody, _ := json.Marshal(body)
 		err := errors.New("invalid fields")
-		handler := createFakeHandler("", err)
+		handler := createFakeHandler("", err, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
@@ -76,7 +75,7 @@ func TestLogin(t *testing.T) {
 		}
 		requestBody, _ := json.Marshal(body)
 		err := errors.New("invalid fields")
-		handler := createFakeHandler("", err)
+		handler := createFakeHandler("", nil, err)
 		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
@@ -92,7 +91,7 @@ func TestLogin(t *testing.T) {
 
 	t.Run("should return 400 and error when is missing fields", func(t *testing.T) {
 		err := errors.New("invalid request payload")
-		handler := createFakeHandler("", err)
+		handler := createFakeHandler("", nil, err)
 		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader([]byte{}))
 		response := httptest.NewRecorder()
 
@@ -106,14 +105,14 @@ func TestLogin(t *testing.T) {
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
-	t.Run("should return 400 and error when credentials are invalid", func(t *testing.T) {
-		body = LoginRequest{
+	t.Run("should return 400 and error when CPF does not exist", func(t *testing.T) {
+		body := LoginRequest{
 			CPF:    "12345678913",
 			Secret: "MySecret",
 		}
-		requestBody, _ = json.Marshal(body)
+		requestBody, _ := json.Marshal(body)
 		err := errors.New("incorrect username or password")
-		handler := createFakeHandler("", err)
+		handler := createFakeHandler("", nil, err)
 		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
@@ -122,31 +121,53 @@ func TestLogin(t *testing.T) {
 		got := response.Body.String()
 		expected := `{"error":"incorrect username or password"}`
 
-		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.Equal(t, expected, strings.TrimSpace(got))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
+	})
+
+	t.Run("should return 400 and error when secret is incorrect", func(t *testing.T) {
+		body := LoginRequest{
+			CPF:    "12345678910",
+			Secret: "MySecret",
+		}
+		requestBody, _ := json.Marshal(body)
+		err := errors.New("incorrect username or password")
+		handler := createFakeHandler("", nil, err)
+		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader(requestBody))
+		response := httptest.NewRecorder()
+
+		http.HandlerFunc(handler.Login).ServeHTTP(response, request)
+
+		got := response.Body.String()
+		expected := `{"error":"incorrect username or password"}`
+
+		assert.Equal(t, http.StatusInternalServerError, response.Code)
 		assert.Equal(t, expected, strings.TrimSpace(got))
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 }
 
-func createFakeHandler(token string, err error) Handler {
-	if err != nil {
-		return NewHandler(&authentication.UseCaseMock{
-			CreateTokenFunc: func(login authentication.LoginInputs) (string, error) {
-				return "", err
-			},
-		}, &account.UseCaseMock{GetByCpfFunc: func(cpf string) (entities.Account, error) {
-			return entities.Account{}, err
-		}})
-	}
+func createFakeHandler(token string, errGetByCPF error, errCreateToken error) Handler {
 	return NewHandler(&authentication.UseCaseMock{
 		CreateTokenFunc: func(login authentication.LoginInputs) (string, error) {
+			if errCreateToken != nil {
+				return "", errCreateToken
+			}
 			return token, nil
 		},
-	}, &account.UseCaseMock{GetByCpfFunc: func(cpf string) (entities.Account, error) {
-		return entities.Account{
-			CPF:       "12345678910",
-			Secret:    "foobar",
-			CreatedAt: time.Now(),
-		}, nil
-	}})
+	}, &account.UseCaseMock{
+		GetByCpfFunc: func(cpf string) (entities.Account, error) {
+			if errGetByCPF != nil {
+				return entities.Account{}, errGetByCPF
+			}
+			return entities.Account{
+				AccountID: "1d773d5d-2f8d-4e7c-99cb-8b62b8d07d41",
+				Name:      "Peter Park",
+				CPF:       "12345678910",
+				Secret:    "foobar",
+				Balance:   100,
+				CreatedAt: time.Now(),
+			}, nil
+		}})
 }
