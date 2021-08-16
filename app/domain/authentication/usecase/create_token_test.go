@@ -43,18 +43,20 @@ func TestCreateToken(t *testing.T) {
 		{
 			name: "should return an error because CPF is invalid",
 			inputs: authentication.LoginInputs{
-				CPF:    "12345678911",
-				Secret: "foobar",
+				CPF:     "12345678911",
+				Secret:  "foobar",
+				Account: accountCreated,
 			},
-			wantError: ErrInvalidCredentials,
+			wantError: ErrInvalidCPF,
 		},
 		{
 			name: "should return an error because secret is invalid",
 			inputs: authentication.LoginInputs{
-				CPF:    "12345678910",
-				Secret: "foo",
+				CPF:     "12345678910",
+				Secret:  "foo",
+				Account: accountCreated,
 			},
-			wantError: ErrInvalidCredentials,
+			wantError: ErrInvalidSecret,
 		},
 	}
 	for _, tt := range tests {

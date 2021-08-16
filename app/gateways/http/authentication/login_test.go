@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"github.com/stretchr/testify/assert"
@@ -53,8 +54,7 @@ func TestLogin(t *testing.T) {
 			secret: "secret",
 		}
 		requestBody, _ := json.Marshal(body)
-		err := errors.New("invalid fields")
-		handler := createFakeHandler("", err, nil)
+		handler := createFakeHandler("", nil, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
@@ -74,8 +74,7 @@ func TestLogin(t *testing.T) {
 			Secret: "",
 		}
 		requestBody, _ := json.Marshal(body)
-		err := errors.New("invalid fields")
-		handler := createFakeHandler("", nil, err)
+		handler := createFakeHandler("", nil, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
@@ -90,8 +89,7 @@ func TestLogin(t *testing.T) {
 	})
 
 	t.Run("should return 400 and error when is missing fields", func(t *testing.T) {
-		err := errors.New("invalid request payload")
-		handler := createFakeHandler("", nil, err)
+		handler := createFakeHandler("", nil, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader([]byte{}))
 		response := httptest.NewRecorder()
 
@@ -111,8 +109,8 @@ func TestLogin(t *testing.T) {
 			Secret: "MySecret",
 		}
 		requestBody, _ := json.Marshal(body)
-		err := errors.New("incorrect username or password")
-		handler := createFakeHandler("", nil, err)
+		err := usecase.ErrInvalidCPF
+		handler := createFakeHandler("", err, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
@@ -121,7 +119,7 @@ func TestLogin(t *testing.T) {
 		got := response.Body.String()
 		expected := `{"error":"incorrect username or password"}`
 
-		assert.Equal(t, http.StatusInternalServerError, response.Code)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.Equal(t, expected, strings.TrimSpace(got))
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
@@ -132,7 +130,7 @@ func TestLogin(t *testing.T) {
 			Secret: "MySecret",
 		}
 		requestBody, _ := json.Marshal(body)
-		err := errors.New("incorrect username or password")
+		err := usecase.ErrInvalidSecret
 		handler := createFakeHandler("", nil, err)
 		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
