@@ -13,15 +13,15 @@ func TestCheckLogin(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	authenticationStorage := make(map[string]memory.Token)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, authenticationStorage)
-	authenticationUsecase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
-	accountUsecase := au.NewAccountUseCase(&memoryStorage)
+	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
+	accountUseCase := au.NewAccountUseCase(&memoryStorage)
 
 	accountTest := account.CreateAccountInput{
 		Name:   "Isaac Newton",
 		CPF:    "12345678910",
 		Secret: "foobar",
 	}
-	accountCreated, _ := accountUsecase.Create(accountTest)
+	accountCreated, _ := accountUseCase.Create(accountTest)
 
 	t.Run("should return valid login successfully", func(t *testing.T) {
 		inputs := authentication.LoginInputs{
@@ -29,7 +29,7 @@ func TestCheckLogin(t *testing.T) {
 			Secret:  "foobar",
 			Account: accountCreated,
 		}
-		got, err := authenticationUsecase.CheckLogin(inputs)
+		got, err := authenticationUseCase.CheckLogin(inputs)
 		assert.Nil(t, err)
 		assert.True(t, got)
 	})
@@ -42,23 +42,25 @@ func TestCheckLogin(t *testing.T) {
 		{
 			name: "should return an error because CPF is invalid",
 			inputs: authentication.LoginInputs{
-				CPF:    "12345678911",
-				Secret: "foobar",
+				CPF:     "12345678911",
+				Secret:  "foobar",
+				Account: accountCreated,
 			},
-			wantError: ErrInvalidCredentials,
+			wantError: ErrInvalidCPF,
 		},
 		{
 			name: "should return an error because secret is invalid",
 			inputs: authentication.LoginInputs{
-				CPF:    "12345678910",
-				Secret: "foo",
+				CPF:     "12345678910",
+				Secret:  "foo",
+				Account: accountCreated,
 			},
-			wantError: ErrInvalidCredentials,
+			wantError: ErrInvalidSecret,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := authenticationUsecase.CheckLogin(tt.inputs)
+			got, err := authenticationUseCase.CheckLogin(tt.inputs)
 
 			assert.Equal(t, tt.wantError, err)
 			assert.False(t, got)

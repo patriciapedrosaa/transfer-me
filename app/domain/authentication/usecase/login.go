@@ -6,16 +6,19 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
 )
 
-var ErrInvalidCredentials = errors.New("incorrect username or password")
+var (
+	ErrInvalidCPF    = errors.New("cpf is wrong")
+	ErrInvalidSecret = errors.New("secret is wrong")
+)
 
 func (a Authentication) CheckLogin(inputs authentication.LoginInputs) (bool, error) {
 	isValidCPF := inputs.CPF == string(inputs.Account.CPF)
 	if !isValidCPF {
-		return false, ErrInvalidCredentials
+		return false, ErrInvalidCPF
 	}
 	err := vos.CompareHashAndSecret(inputs.Secret, string(inputs.Account.Secret))
 	if err != nil {
-		return false, ErrInvalidCredentials
+		return false, ErrInvalidSecret
 	}
 	return true, err
 }

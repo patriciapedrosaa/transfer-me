@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	ErrInvalidPayload = "invalid request payload"
-	ErrRequiredFields = "invalid fields"
+	ErrInvalidPayload     = "invalid request payload"
+	ErrRequiredFields     = "invalid fields"
+	ErrInvalidCredentials = "incorrect username or password"
 )
 
 type LoginRequest struct {
@@ -44,7 +45,7 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	account, err := h.accountUseCase.GetByCpf(body.CPF)
 	if err != nil {
-		http_server.ResponseError(w, http.StatusBadRequest, usecase.ErrInvalidCredentials.Error())
+		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidCredentials)
 		return
 	}
 
@@ -57,8 +58,10 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 	output, err := h.useCase.CreateToken(input)
 	if err != nil {
 		switch {
-		case errors.Is(err, usecase.ErrInvalidCredentials):
-			http_server.ResponseError(w, http.StatusBadRequest, err.Error())
+		case errors.Is(err, usecase.ErrInvalidCPF):
+			http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidCredentials)
+		case errors.Is(err, usecase.ErrInvalidSecret):
+			http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidCredentials)
 		default:
 			http_server.ResponseError(w, http.StatusInternalServerError, err.Error())
 		}
