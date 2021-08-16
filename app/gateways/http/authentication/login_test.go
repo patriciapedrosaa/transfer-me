@@ -140,6 +140,27 @@ func TestLogin(t *testing.T) {
 		got := response.Body.String()
 		expected := `{"error":"incorrect username or password"}`
 
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Equal(t, expected, strings.TrimSpace(got))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
+	})
+
+	t.Run("should return 500 and error when some unexpected error occurs", func(t *testing.T) {
+		body := LoginRequest{
+			CPF:    "12345678910",
+			Secret: "MySecret",
+		}
+		requestBody, _ := json.Marshal(body)
+		err := errors.New("unexpected error")
+		handler := createFakeHandler("", nil, err)
+		request, _ := http.NewRequest(http.MethodPost, "/login", bytes.NewReader(requestBody))
+		response := httptest.NewRecorder()
+
+		http.HandlerFunc(handler.Login).ServeHTTP(response, request)
+
+		got := response.Body.String()
+		expected := `{"error":"unexpected error"}`
+
 		assert.Equal(t, http.StatusInternalServerError, response.Code)
 		assert.Equal(t, expected, strings.TrimSpace(got))
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
