@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	ErrInvalidPayload     = "invalid request payload"
-	ErrRequiredFields     = "invalid fields"
+	ErrInvalidPayload = "invalid request payload"
+	ErrRequiredFields = "invalid fields"
 )
 
 type LoginRequest struct {
