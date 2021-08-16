@@ -2,7 +2,9 @@ package authentication
 
 import (
 	"encoding/json"
+	"errors"
 	auth "github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication/usecase"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"net/http"
 )
@@ -10,8 +12,6 @@ import (
 var (
 	ErrInvalidPayload     = "invalid request payload"
 	ErrRequiredFields     = "invalid fields"
-	ErrInvalidCredentials = "incorrect username or password"
-	ErrUnexpected         = "something went wrong"
 )
 
 type LoginRequest struct {
@@ -44,7 +44,7 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	account, err := h.accountUseCase.GetByCpf(body.CPF)
 	if err != nil {
-		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidCredentials)
+		http_server.ResponseError(w, http.StatusBadRequest, usecase.ErrInvalidCredentials.Error())
 		return
 	}
 
@@ -56,7 +56,12 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	output, err := h.useCase.CreateToken(input)
 	if err != nil {
-		http_server.ResponseError(w, http.StatusInternalServerError, err.Error())
+		switch {
+		case errors.Is(err, usecase.ErrInvalidCredentials):
+			http_server.ResponseError(w, http.StatusBadRequest, err.Error())
+		default:
+			http_server.ResponseError(w, http.StatusInternalServerError, err.Error())
+		}
 		return
 	}
 
