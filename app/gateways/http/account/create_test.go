@@ -17,7 +17,9 @@ import (
 )
 
 type CreateAccountBadRequest struct {
-	name, cpf, secret string
+	Name   string `json:"name"`
+	CPF    int    `json:"cpf"`
+	Secret string `json:"secret"`
 }
 
 func TestCreate(t *testing.T) {
@@ -32,7 +34,7 @@ func TestCreate(t *testing.T) {
 		Name:      "Peter Park",
 	}
 	t.Run("should return 201 and created account", func(t *testing.T) {
-		handler := createFakeHandler()
+		handler := createFakeHandler(nil)
 		request, _ := http.NewRequest(http.MethodPost, "/accounts", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
@@ -48,38 +50,56 @@ func TestCreate(t *testing.T) {
 	})
 
 	t.Run("should return 400 and error when body has invalid fields", func(t *testing.T) {
-		body := CreateAccountBadRequest{
-			name:   "Peter Park",
-			cpf:    "one two three",
-			secret: "MySecret",
+		body := CreateAccountRequest{
+			Name:   "Peter Park",
+			CPF:    "one two three",
+			Secret: "MySecret",
 		}
 		requestBody, _ := json.Marshal(body)
-		handler := NewHandler(&account.UseCaseMock{CreateFunc: func(input account.CreateAccountInput) (entities.Account, error) {
-			return entities.Account{}, errors.New("invalid request payload")
-		}})
+		err := errors.New("invalid cpf")
+		handler := createFakeHandler(err)
 		request, _ := http.NewRequest(http.MethodPost, "/accounts", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
 		http.HandlerFunc(handler.Create).ServeHTTP(response, request)
 
 		got := response.Body.String()
-		expected := `{"error":"invalid fields"}`
+		expected := `{"error":"invalid cpf"}`
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
-		assert.Equal(t, got, expected)
+		assert.Equal(t, expected, got)
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
+	})
+
+	t.Run("should return 400 and error when body has invalid type fields", func(t *testing.T) {
+		body := CreateAccountBadRequest{
+			Name:   "Peter Park",
+			CPF:    12345678910,
+			Secret: "MySecret",
+		}
+		requestBody, _ := json.Marshal(body)
+		handler := NewHandler(nil)
+		request, _ := http.NewRequest(http.MethodPost, "/accounts", bytes.NewReader(requestBody))
+		response := httptest.NewRecorder()
+
+		http.HandlerFunc(handler.Create).ServeHTTP(response, request)
+
+		got := response.Body.String()
+		expected := `{"error":"invalid request payload"}`
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Equal(t, expected, got)
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 	t.Run("should return 400 and error when body is empty", func(t *testing.T) {
-		body := CreateAccountBadRequest{
-			name:   "",
-			cpf:    "",
-			secret: "",
+		body := CreateAccountRequest{
+			Name:   "",
+			CPF:    "",
+			Secret: "",
 		}
 		requestBody, _ := json.Marshal(body)
-		handler := NewHandler(&account.UseCaseMock{CreateFunc: func(input account.CreateAccountInput) (entities.Account, error) {
-			return entities.Account{}, errors.New("invalid request payload")
-		}})
+		handler := createFakeHandler(nil)
 		request, _ := http.NewRequest(http.MethodPost, "/accounts", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
@@ -89,14 +109,12 @@ func TestCreate(t *testing.T) {
 		expected := `{"error":"invalid fields"}`
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
-		assert.Equal(t, got, expected)
+		assert.Equal(t, expected, got)
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 	t.Run("should return 400 and error when is missing fields", func(t *testing.T) {
-		handler := NewHandler(&account.UseCaseMock{CreateFunc: func(input account.CreateAccountInput) (entities.Account, error) {
-			return entities.Account{}, errors.New("invalid request payload")
-		}})
+		handler := createFakeHandler(nil)
 		request, _ := http.NewRequest(http.MethodPost, "/accounts", bytes.NewReader([]byte{}))
 		response := httptest.NewRecorder()
 
@@ -106,13 +124,20 @@ func TestCreate(t *testing.T) {
 		expected := `{"error":"invalid request payload"}`
 
 		assert.Equal(t, http.StatusBadRequest, response.Code)
-		assert.Equal(t, got, expected)
+		assert.Equal(t, expected, got)
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
 }
 
-func createFakeHandler() Handler {
+func createFakeHandler(err error) Handler {
+	if err != nil {
+		return NewHandler(&account.UseCaseMock{
+			CreateFunc: func(input account.CreateAccountInput) (entities.Account, error) {
+				return entities.Account{}, err
+			},
+		})
+	}
 	return NewHandler(&account.UseCaseMock{
 		CreateFunc: func(input account.CreateAccountInput) (entities.Account, error) {
 			return entities.Account{
