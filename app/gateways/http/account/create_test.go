@@ -71,7 +71,7 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
-	t.Run("should return 400 and error when body has invalid type fields", func(t *testing.T) {
+	t.Run("should return 400 and error when body has invalid field types", func(t *testing.T) {
 		body := CreateAccountBadRequest{
 			Name:   "Peter Park",
 			CPF:    12345678910,
