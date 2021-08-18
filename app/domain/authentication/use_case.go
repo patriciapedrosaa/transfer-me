@@ -1,7 +1,6 @@
 package authentication
 
 import (
-	"github.com/golang-jwt/jwt"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 )
 
@@ -15,7 +14,5 @@ type LoginInputs struct {
 
 type UseCase interface {
 	CreateToken(login LoginInputs) (string, error)
-	GetToken(id string) (entities.Token, error)
-	CheckLogin(inputs LoginInputs) (bool, error)
-	ValidatesToken(tokenString string) (*jwt.Token, error)
+	ValidatesToken(tokenString string) (entities.Token, error)
 }
