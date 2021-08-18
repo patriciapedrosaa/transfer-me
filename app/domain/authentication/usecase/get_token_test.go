@@ -27,7 +27,7 @@ func TestGetToken(t *testing.T) {
 	authenticationStorage[token.ID] = token
 
 	t.Run("Should return a token successfully", func(t *testing.T) {
-		got, err := authenticationUsecase.GetToken(token.ID)
+		got, err := authenticationUsecase.getToken(token.ID)
 
 		assert.Equal(t, got.Subject, token.Subject)
 		assert.Equal(t, got.Issuer, token.Issuer)
@@ -37,7 +37,7 @@ func TestGetToken(t *testing.T) {
 
 	t.Run("should return error not found", func(t *testing.T) {
 		fakeId := uuid.New().String()
-		got, err := authenticationUsecase.GetToken(fakeId)
+		got, err := authenticationUsecase.getToken(fakeId)
 
 		assert.Error(t, err)
 		assert.Empty(t, got)
