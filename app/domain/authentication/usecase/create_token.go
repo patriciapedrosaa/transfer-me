@@ -7,7 +7,7 @@ import (
 )
 
 func (a Authentication) CreateToken(login authentication.LoginInputs) (string, error) {
-	validUser, err := a.CheckLogin(login)
+	validUser, err := a.checkLogin(login)
 	if !validUser {
 		return "", err
 	}

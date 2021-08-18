@@ -29,7 +29,7 @@ func TestCheckLogin(t *testing.T) {
 			Secret:  "foobar",
 			Account: accountCreated,
 		}
-		got, err := authenticationUseCase.CheckLogin(inputs)
+		got, err := authenticationUseCase.checkLogin(inputs)
 		assert.Nil(t, err)
 		assert.True(t, got)
 	})
@@ -60,7 +60,7 @@ func TestCheckLogin(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := authenticationUseCase.CheckLogin(tt.inputs)
+			got, err := authenticationUseCase.checkLogin(tt.inputs)
 
 			assert.Equal(t, tt.wantError, err)
 			assert.False(t, got)

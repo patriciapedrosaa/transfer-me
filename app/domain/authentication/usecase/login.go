@@ -11,7 +11,7 @@ var (
 	ErrInvalidSecret = errors.New("secret is wrong")
 )
 
-func (a Authentication) CheckLogin(inputs authentication.LoginInputs) (bool, error) {
+func (a Authentication) checkLogin(inputs authentication.LoginInputs) (bool, error) {
 	isValidCPF := inputs.CPF == string(inputs.Account.CPF)
 	if !isValidCPF {
 		return false, ErrInvalidCPF
