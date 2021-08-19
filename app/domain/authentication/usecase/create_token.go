@@ -27,8 +27,8 @@ func (a Authentication) CreateToken(login authentication.LoginInputs) (string, e
 		"name": token.Name,
 		"sub":  token.Subject,
 		"iss":  token.Issuer,
-		"iat":  token.IssuedAt,
-		"exp":  token.ExpiredAt,
+		"iat":  token.IssuedAt.Unix(),
+		"exp":  token.ExpiredAt.Unix(),
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 	accessTokenString, err := accessToken.SignedString([]byte(a.accessSecret))
