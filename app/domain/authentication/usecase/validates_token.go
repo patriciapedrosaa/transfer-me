@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"encoding/json"
 	"errors"
 	"github.com/golang-jwt/jwt"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
@@ -8,72 +9,65 @@ import (
 )
 
 var (
-	ErrInvalidToken = errors.New("unauthorized")
-	ErrTokenExpired = errors.New("token expired")
+	ErrInvalidToken      = errors.New("token is invalid")
+	ErrMethodInvalid     = errors.New("invalid signature method")
+	ErrTokenNotFound     = errors.New("token not found")
+	ErrDateFormatInvalid = errors.New("data format is invalid")
 )
 
 func (a Authentication) ValidatesToken(tokenString string) (entities.Token, error) {
 	keyFunc := func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
-			return nil, ErrInvalidToken
+			return nil, ErrMethodInvalid
 		}
 		return []byte(a.accessSecret), nil
 	}
 	jwtToken, err := jwt.Parse(tokenString, keyFunc)
+
 	if err != nil {
-		return entities.Token{}, err
+		var jwtError *jwt.ValidationError
+		if errors.As(err, &jwtError) {
+			return entities.Token{}, jwtError.Inner
+		}
+		return entities.Token{}, ErrInvalidToken
 	}
 
 	claims := jwtToken.Claims.(jwt.MapClaims)
+	iat, err := parseUnixToTime(claims["iat"])
+	if err != nil {
+		return entities.Token{}, err
+	}
+	exp, err := parseUnixToTime(claims["exp"])
+	if err != nil {
+		return entities.Token{}, err
+	}
+
 	token := entities.Token{
-		ID:       jwtToken.Claims.(jwt.MapClaims)["id"].(string),
-		Name:     claims["name"].(string),
-		Subject:  claims["sub"].(string),
-		Issuer:   claims["iss"].(string),
+		ID:        claims["id"].(string),
+		Name:      claims["name"].(string),
+		Subject:   claims["sub"].(string),
+		Issuer:    claims["iss"].(string),
+		IssuedAt:  iat,
+		ExpiredAt: exp,
 	}
-
-	iat, err := stringToDate(claims["iat"].(string))
-	if err != nil{
-		return entities.Token{}, err
-	}
-	exp, err := stringToDate(claims["exp"].(string))
-	if err != nil{
-		return entities.Token{}, err
-	}
-
-	isValidDuration := checkDuration(iat, exp)
-
-	if !isValidDuration {
-		return entities.Token{}, ErrTokenExpired
-	}
-
-	token.IssuedAt = iat
-	token.ExpiredAt = exp
 
 	_, err = a.getToken(token.ID)
 	if err != nil {
-		return entities.Token{}, ErrInvalidToken
+		return entities.Token{}, ErrTokenNotFound
 	}
 
 	return token, nil
 }
 
-func stringToDate(str string) (time.Time, error){
-	layout := "2006-01-02T15:04:05Z"
-	t, err := time.Parse(layout, str)
-	
-	if err != nil {
-		return time.Time{}, err
+func parseUnixToTime(claim interface{}) (time.Time, error) {
+	switch unixTimestamp := claim.(type) {
+	case float64:
+		return time.Unix(int64(unixTimestamp), 0), nil
+	case json.Number:
+		v, _ := unixTimestamp.Int64()
+		return time.Unix(v, 0), nil
+	default:
+		return time.Time{}, ErrDateFormatInvalid
 	}
-	
-	return t, nil
-}
-
-func checkDuration (timeStart time.Time, timeEnd time.Time) bool {
-	duration := timeEnd.Sub(timeStart).Minutes()
-	if duration != 15 {
-		return false
-	}
-	return true
 }
