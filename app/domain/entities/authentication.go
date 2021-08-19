@@ -31,7 +31,7 @@ func NewCreateToken(username, subject string) (Token, error) {
 		Name:     username,
 		Subject:  subject,
 		Issuer:   ISSUER,
-		IssuedAt: time.Time{},
+		IssuedAt: time.Now().UTC(),
 	}
 	token.ExpiredAt = token.IssuedAt.Add(time.Minute * DURATION)
 
