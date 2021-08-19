@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
@@ -40,7 +41,7 @@ func TestValidatesToken(t *testing.T) {
 
 		assert.NotEmpty(t, got)
 		assert.NotEmpty(t, got.ID)
-		assert.NotEmpty(t, got.ExpiredAt)
+		assert.NotEmpty(t, got.IssuedAt)
 		assert.NotEmpty(t, got.ExpiredAt)
 		assert.Equal(t, got.Subject, accountCreated.AccountID)
 		assert.Equal(t, got.Name, accountCreated.Name)
@@ -48,70 +49,72 @@ func TestValidatesToken(t *testing.T) {
 		assert.Empty(t, err)
 	})
 
-	t.Run("Should return error because token is invalid", func(t *testing.T) {
-		wrongToken := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+	t.Run("Should return error because token signature method is invalid", func(t *testing.T) {
+		wrongToken := "eyJhbGciOiJQUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.VMOk4ckLBFstkXMK0FuApNcG2FqNjs0_D8YubBKDOJ09IQV5XEexJBUv9YYkf60JBphZw_puMMEYlOGzlvgTCNeVCmzCDTPG2mvyuUG80ZPM-3B_uZyt23TbHKNF5GFvDa0X3Fa-aXTrM4cwjMVSku0YEbTKNvN1Ei3tyuQaPEWFRG-0Z6X_7ATSDYjrhmOk-RKP6dj5Yd2f4xMPf1ab4u9u98HFHBubmXR0dl9HmnVPfOwGCn0DuA9YqfG_NEzDaUVFTWsoBIajDYDZSbtHFp-D5ylE3WbomkaYjxpkZAAHAXyXwExW1QM3FM_JZZhmMywuOuIa0gZJAwOUvXuoyg"
+		wantErr := ErrMethodInvalid
 		got, err := authenticationUseCase.ValidatesToken(wrongToken)
 
 		assert.Empty(t, got)
 		assert.Error(t, err)
+		assert.Equal(t, wantErr, err)
 	})
 
 	t.Run("Should return error because token expired", func(t *testing.T) {
 		expiredToken := generateExpiredToken(accountCreated.Name, accountCreated.AccountID)
-		wantErr := ErrTokenExpired
+		wantErr := errors.New("Token is expired")
 
 		got, err := authenticationUseCase.ValidatesToken(expiredToken)
 
 		assert.Empty(t, got)
 		assert.Error(t, err)
-		assert.Equal(t, err, wantErr)
+		assert.Equal(t, wantErr, err)
 	})
 
 	t.Run("Should return error because token is not in database", func(t *testing.T) {
 		fakeToken := generateFakeToken()
-		wantErr := ErrInvalidToken
+		wantErr := ErrTokenNotFound
 
 		got, err := authenticationUseCase.ValidatesToken(fakeToken)
 
 		assert.Empty(t, got)
 		assert.Error(t, err)
-		assert.Equal(t, err, wantErr)
+		assert.Equal(t, wantErr, err)
 	})
 }
 
-func generateExpiredToken(username string, subject string)  string{
+func generateExpiredToken(username string, subject string) string {
 	token := entities.Token{
-			ID:       uuid.New().String(),
-			Name:     username,
-			Subject:  subject,
-			Issuer:   entities.ISSUER,
-			IssuedAt: time.Time{},
+		ID:       uuid.New().String(),
+		Name:     username,
+		Subject:  subject,
+		Issuer:   entities.ISSUER,
+		IssuedAt: time.Time{},
 	}
 	token.ExpiredAt = token.IssuedAt.Add(time.Minute * 20)
 
 	atClaims := jwt.MapClaims{
-	"id":   token.ID,
-	"name": token.Name,
-	"sub":  token.Subject,
-	"iss":  token.Issuer,
-	"iat":  token.IssuedAt,
-	"exp":  token.ExpiredAt,
+		"id":   token.ID,
+		"name": token.Name,
+		"sub":  token.Subject,
+		"iss":  token.Issuer,
+		"iat":  token.IssuedAt.Unix(),
+		"exp":  token.ExpiredAt.Unix(),
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 	accessTokenString, err := accessToken.SignedString([]byte(os.Getenv("ACCESS_SECRET")))
 	if err != nil {
-	return ""
+		return ""
 	}
 	return accessTokenString
 }
 
-func generateFakeToken() string{
+func generateFakeToken() string {
 	token := entities.Token{
 		ID:       uuid.New().String(),
 		Name:     "username",
 		Subject:  uuid.New().String(),
 		Issuer:   entities.ISSUER,
-		IssuedAt: time.Time{},
+		IssuedAt: time.Now(),
 	}
 	token.ExpiredAt = token.IssuedAt.Add(time.Minute * entities.DURATION)
 
@@ -120,8 +123,8 @@ func generateFakeToken() string{
 		"name": token.Name,
 		"sub":  token.Subject,
 		"iss":  token.Issuer,
-		"iat":  token.IssuedAt,
-		"exp":  token.ExpiredAt,
+		"iat":  token.IssuedAt.Unix(),
+		"exp":  token.ExpiredAt.Unix(),
 	}
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 	accessTokenString, err := accessToken.SignedString([]byte(os.Getenv("ACCESS_SECRET")))
