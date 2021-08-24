@@ -7,7 +7,6 @@ import (
 )
 
 var (
-	ErrInvalidUser               = errors.New("invalid user")
 	ErrInvalidAmount             = errors.New("the amount must be greater than zero")
 	ErrInvalidTransfer           = errors.New("insufficient funds")
 	ErrInvalidDestinationAccount = errors.New("accounts must be different")
@@ -22,10 +21,6 @@ type Transfer struct {
 }
 
 func NewCreateTransfers(originAccount, destinationAccount Account, amount int) (Transfer, error) {
-	if !authenticatedUser() {
-		return Transfer{}, ErrInvalidUser
-	}
-
 	if amount <= 0 {
 		return Transfer{}, ErrInvalidAmount
 	}
@@ -43,11 +38,8 @@ func NewCreateTransfers(originAccount, destinationAccount Account, amount int) (
 		AccountOriginID:      originAccount.AccountID,
 		AccountDestinationID: destinationAccount.AccountID,
 		Amount:               amount,
+		CreatedAt:            time.Now(),
 	}, nil
-}
-
-func authenticatedUser() bool {
-	return true
 }
 
 func isValidTransfer(balance int, amount int) bool {
