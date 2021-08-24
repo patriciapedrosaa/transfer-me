@@ -11,6 +11,10 @@ const (
 	JsonContentType = "application/json"
 )
 
+type AccountIdContextKey string
+
+var ContextID = AccountIdContextKey("id")
+
 type AccountHandler interface {
 	Create(w http.ResponseWriter, r *http.Request)
 	Get(w http.ResponseWriter, _ *http.Request)
@@ -19,17 +23,25 @@ type AccountHandler interface {
 
 type AuthenticationHandler interface {
 	Login(w http.ResponseWriter, r *http.Request)
+	Authenticate(next http.HandlerFunc) http.HandlerFunc
+}
+
+type TransferHandler interface {
+	Create(w http.ResponseWriter, r *http.Request)
+	Get(w http.ResponseWriter, r *http.Request)
 }
 
 type Api struct {
-	Account AccountHandler
-	Auth    AuthenticationHandler
+	Account  AccountHandler
+	Auth     AuthenticationHandler
+	Transfer TransferHandler
 }
 
-func NewApi(account AccountHandler, auth AuthenticationHandler) Api {
+func NewApi(account AccountHandler, auth AuthenticationHandler, transfer TransferHandler) Api {
 	return Api{
-		Account: account,
-		Auth:    auth,
+		Account:  account,
+		Auth:     auth,
+		Transfer: transfer,
 	}
 }
 
@@ -39,6 +51,8 @@ func (a Api) Start(port string) {
 	r.HandleFunc("/accounts", a.Account.Get).Methods(http.MethodGet)
 	r.HandleFunc("/accounts", a.Account.Create).Methods(http.MethodPost)
 	r.HandleFunc("/login", a.Auth.Login).Methods(http.MethodPost)
+	r.HandleFunc("/transfers", a.Auth.Authenticate(a.Transfer.Create)).Methods(http.MethodPost)
+	r.HandleFunc("/transfers", a.Auth.Authenticate(a.Transfer.Get)).Methods(http.MethodGet)
 
 	log.Fatal(http.ListenAndServe(port, r))
 }
