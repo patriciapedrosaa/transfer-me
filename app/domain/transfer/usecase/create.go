@@ -1,23 +1,24 @@
 package usecase
 
 import (
+	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer"
 )
 
-type CreateTransferInput struct {
-	OriginAccountId      string
-	DestinationAccountId string
-	Amount               int
-}
+var (
+	ErrNotFound   = errors.New("not found")
+	ErrUnexpected = errors.New("something went wrong")
+)
 
-func (t Transfer) Create(input CreateTransferInput) (entities.Transfer, error) {
+func (t Transfer) Create(input transfer.CreateTransferInput) (entities.Transfer, error) {
 	originAccount, err := t.accountRepository.GetById(input.OriginAccountId)
 	if err != nil {
-		return entities.Transfer{}, err
+		return entities.Transfer{}, ErrNotFound
 	}
 	destinationAccount, err := t.accountRepository.GetById(input.DestinationAccountId)
 	if err != nil {
-		return entities.Transfer{}, err
+		return entities.Transfer{}, ErrNotFound
 	}
 	transfer, err := entities.NewCreateTransfers(originAccount, destinationAccount, input.Amount)
 	if err != nil {
@@ -25,7 +26,7 @@ func (t Transfer) Create(input CreateTransferInput) (entities.Transfer, error) {
 	}
 	err = t.transferRepository.CreateTransfer(transfer, originAccount.AccountID)
 	if err != nil {
-		return entities.Transfer{}, err
+		return entities.Transfer{}, ErrUnexpected
 	}
 	return transfer, nil
 }
