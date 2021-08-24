@@ -6,6 +6,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -15,7 +16,7 @@ func TestCreateTransfer(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, nil)
-	accountUsecase := au.NewAccountUseCase(&memoryStorage)
+	accountUseCase := au.NewAccountUseCase(&memoryStorage)
 
 	createAccountInput1 := account.CreateAccountInput{
 		Name:   "John Locke",
@@ -28,28 +29,28 @@ func TestCreateTransfer(t *testing.T) {
 		CPF:    "12345678911",
 		Secret: "foobar",
 	}
-	account1, _ := accountUsecase.Create(createAccountInput1)
-	account2, _ := accountUsecase.Create(createAccountInput2)
+	account1, _ := accountUseCase.Create(createAccountInput1)
+	account2, _ := accountUseCase.Create(createAccountInput2)
 
-	transferUsecase := NewTransferUsecase(&memoryStorage, &memoryStorage)
+	transferUseCase := NewTransferUsecase(&memoryStorage, &memoryStorage)
 
-	fakeTransfer := CreateTransferInput{
+	fakeTransfer := transfer.CreateTransferInput{
 		OriginAccountId:      account1.AccountID,
 		DestinationAccountId: account2.AccountID,
 		Amount:               20,
 	}
-	_, _ = transferUsecase.Create(fakeTransfer)
-	_ = accountUsecase.UpdateBalance(account1.AccountID, account2.AccountID, fakeTransfer.Amount)
+	_, _ = transferUseCase.Create(fakeTransfer)
+	_ = accountUseCase.UpdateBalance(account1.AccountID, account2.AccountID, fakeTransfer.Amount)
 
 	tests := []struct {
 		name       string
-		inputs     CreateTransferInput
+		inputs     transfer.CreateTransferInput
 		wantErr    error
 		wantResult entities.Transfer
 	}{
 		{
 			name: "should return a transfer successfully",
-			inputs: CreateTransferInput{
+			inputs: transfer.CreateTransferInput{
 				OriginAccountId:      account1.AccountID,
 				DestinationAccountId: account2.AccountID,
 				Amount:               50,
@@ -63,7 +64,7 @@ func TestCreateTransfer(t *testing.T) {
 		},
 		{
 			name: "should return another transfer successfully",
-			inputs: CreateTransferInput{
+			inputs: transfer.CreateTransferInput{
 				OriginAccountId:      account2.AccountID,
 				DestinationAccountId: account1.AccountID,
 				Amount:               10,
@@ -77,7 +78,7 @@ func TestCreateTransfer(t *testing.T) {
 		},
 		{
 			name: "should return an error because account was not found",
-			inputs: CreateTransferInput{
+			inputs: transfer.CreateTransferInput{
 				OriginAccountId:      uuid.New().String(),
 				DestinationAccountId: account2.AccountID,
 				Amount:               50,
@@ -87,7 +88,7 @@ func TestCreateTransfer(t *testing.T) {
 		},
 		{
 			name: "should return an error because amount is zero",
-			inputs: CreateTransferInput{
+			inputs: transfer.CreateTransferInput{
 				OriginAccountId:      account1.AccountID,
 				DestinationAccountId: account2.AccountID,
 				Amount:               0,
@@ -97,7 +98,7 @@ func TestCreateTransfer(t *testing.T) {
 		},
 		{
 			name: "should return an error because amount is negative",
-			inputs: CreateTransferInput{
+			inputs: transfer.CreateTransferInput{
 				OriginAccountId:      account1.AccountID,
 				DestinationAccountId: account2.AccountID,
 				Amount:               -10,
@@ -107,7 +108,7 @@ func TestCreateTransfer(t *testing.T) {
 		},
 		{
 			name: "should return an error because accounts are equals",
-			inputs: CreateTransferInput{
+			inputs: transfer.CreateTransferInput{
 				OriginAccountId:      account1.AccountID,
 				DestinationAccountId: account1.AccountID,
 				Amount:               50,
@@ -117,7 +118,7 @@ func TestCreateTransfer(t *testing.T) {
 		},
 		{
 			name: "should return an error because insufficient funds",
-			inputs: CreateTransferInput{
+			inputs: transfer.CreateTransferInput{
 				OriginAccountId:      account1.AccountID,
 				DestinationAccountId: account2.AccountID,
 				Amount:               500,
@@ -128,7 +129,7 @@ func TestCreateTransfer(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			transferCreated, err := transferUsecase.Create(tt.inputs)
+			transferCreated, err := transferUseCase.Create(tt.inputs)
 
 			assert.Equal(t, tt.wantResult.AccountOriginID, transferCreated.AccountOriginID)
 			assert.Equal(t, tt.wantResult.AccountDestinationID, transferCreated.AccountDestinationID)

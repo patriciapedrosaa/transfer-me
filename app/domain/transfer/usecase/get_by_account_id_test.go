@@ -4,6 +4,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -13,7 +14,7 @@ func TestGetTransfers(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, nil)
-	accountUsecase := au.NewAccountUseCase(&memoryStorage)
+	accountUseCase := au.NewAccountUseCase(&memoryStorage)
 
 	createAccountInput1 := account.CreateAccountInput{
 		Name:   "John Locke",
@@ -26,24 +27,24 @@ func TestGetTransfers(t *testing.T) {
 		CPF:    "12345678911",
 		Secret: "foobar",
 	}
-	account1, _ := accountUsecase.Create(createAccountInput1)
-	account2, _ := accountUsecase.Create(createAccountInput2)
+	account1, _ := accountUseCase.Create(createAccountInput1)
+	account2, _ := accountUseCase.Create(createAccountInput2)
 
-	transferUsecase := NewTransferUsecase(&memoryStorage, &memoryStorage)
+	transferUseCase := NewTransferUsecase(&memoryStorage, &memoryStorage)
 
-	transfer1 := CreateTransferInput{
+	transfer1 := transfer.CreateTransferInput{
 		OriginAccountId:      account1.AccountID,
 		DestinationAccountId: account2.AccountID,
 		Amount:               50,
 	}
-	transfer2 := CreateTransferInput{
+	transfer2 := transfer.CreateTransferInput{
 		OriginAccountId:      account1.AccountID,
 		DestinationAccountId: account2.AccountID,
 		Amount:               10,
 	}
 
-	_, _ = transferUsecase.Create(transfer1)
-	_, _ = transferUsecase.Create(transfer2)
+	_, _ = transferUseCase.Create(transfer1)
+	_, _ = transferUseCase.Create(transfer2)
 
 	tests := []struct {
 		name       string
@@ -69,7 +70,7 @@ func TestGetTransfers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			transfers, err := transferUsecase.GetTransfersByAccountID(account1.AccountID)
+			transfers, err := transferUseCase.GetTransfersByAccountID(account1.AccountID)
 
 			for k, _ := range transfers {
 				assert.Equal(t, tt.wantResult[k].AccountOriginID, transfers[k].AccountOriginID)
