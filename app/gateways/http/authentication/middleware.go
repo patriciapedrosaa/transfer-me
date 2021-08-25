@@ -18,21 +18,21 @@ func (h Handler) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			http_server.ResponseError(w, http.StatusUnauthorized, ErrEmptyHeader)
+			http_server.ResponseError(w, http.StatusBadRequest, ErrEmptyHeader)
 			return
 		}
 		tokenString := strings.Split(authHeader, " ")
 		if len(tokenString) != 2 {
-			http_server.ResponseError(w, http.StatusUnauthorized, ErrEmptyToken)
+			http_server.ResponseError(w, http.StatusBadRequest, ErrEmptyToken)
 			return
 		}
 		if tokenString[0] != "Bearer" {
-			http_server.ResponseError(w, http.StatusUnauthorized, ErrInvalidAuthMethod)
+			http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidAuthMethod)
 			return
 		}
 		validToken, err := h.useCase.ValidatesToken(tokenString[1])
 		if err != nil {
-			http_server.ResponseError(w, http.StatusUnauthorized, ErrInvalidToken)
+			http_server.ResponseError(w, http.StatusForbidden, ErrInvalidToken)
 			return
 		}
 		accountID := validToken.Subject
