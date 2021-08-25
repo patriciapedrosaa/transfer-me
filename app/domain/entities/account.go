@@ -45,7 +45,7 @@ func NewCreateAccount(name string, secret vos.Secret, cpf vos.CPF) (Account, err
 		CPF:       cpf,
 		Secret:    hashedSecret,
 		Balance:   100,
-		CreatedAt: time.Now(),
+		CreatedAt: time.Now().UTC(),
 	}, nil
 }
 

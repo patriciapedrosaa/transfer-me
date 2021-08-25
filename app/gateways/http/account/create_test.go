@@ -146,7 +146,7 @@ func createFakeHandler(err error) Handler {
 				CPF:       vos.CPF(input.CPF),
 				Secret:    "hash",
 				Balance:   100,
-				CreatedAt: time.Now(),
+				CreatedAt: time.Now().UTC(),
 			}, nil
 		},
 	})
