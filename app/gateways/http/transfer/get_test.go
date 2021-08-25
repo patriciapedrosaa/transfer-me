@@ -29,7 +29,7 @@ func TestGet(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/transfers", nil)
 		request.Header = getHeader
 		response := httptest.NewRecorder()
-		ctx := context.WithValue(request.Context(), http_server.ContextID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
+		ctx := context.WithValue(request.Context(), http_server.AccountID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
 
 		http.HandlerFunc(handler.Get).ServeHTTP(response, request.WithContext(ctx))
 
@@ -47,7 +47,7 @@ func TestGet(t *testing.T) {
 		request, _ := http.NewRequest(http.MethodGet, "/transfers", nil)
 		request.Header = header
 		response := httptest.NewRecorder()
-		ctx := context.WithValue(request.Context(), http_server.ContextID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
+		ctx := context.WithValue(request.Context(), http_server.AccountID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
 
 		http.HandlerFunc(handler.Get).ServeHTTP(response, request.WithContext(ctx))
 

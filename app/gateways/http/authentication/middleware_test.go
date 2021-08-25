@@ -122,7 +122,7 @@ func TestMiddleware(t *testing.T) {
 
 func createFakeHandlerFunc() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		val := r.Context().Value(http_server.ContextID)
+		val := r.Context().Value(http_server.AccountID)
 		if val == nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			_, _ = w.Write([]byte(idNotPresent))
