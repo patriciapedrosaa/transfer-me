@@ -20,7 +20,7 @@ type Transfer struct {
 	CreatedAt            time.Time
 }
 
-func NewCreateTransfers(originAccount, destinationAccount Account, amount int) (Transfer, error) {
+func NewTransfer(originAccount, destinationAccount Account, amount int) (Transfer, error) {
 	if amount <= 0 {
 		return Transfer{}, ErrInvalidAmount
 	}
