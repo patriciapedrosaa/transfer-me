@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
@@ -35,9 +34,9 @@ func TestCreateTransfer(t *testing.T) {
 	transferUseCase := NewTransferUseCase(&memoryStorage)
 
 	fakeTransfer := transfer.CreateTransferInput{
-		OriginAccountId:      account1.AccountID,
-		DestinationAccountId: account2.AccountID,
-		Amount:               20,
+		OriginAccount:      account1,
+		DestinationAccount: account2,
+		Amount:             20,
 	}
 	_, _ = transferUseCase.Create(fakeTransfer)
 	_ = accountUseCase.UpdateBalance(account1.AccountID, account2.AccountID, fakeTransfer.Amount)
@@ -51,9 +50,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return a transfer successfully",
 			inputs: transfer.CreateTransferInput{
-				OriginAccountId:      account1.AccountID,
-				DestinationAccountId: account2.AccountID,
-				Amount:               50,
+				OriginAccount:      account1,
+				DestinationAccount: account2,
+				Amount:             50,
 			},
 			wantErr: nil,
 			wantResult: entities.Transfer{
@@ -65,9 +64,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return another transfer successfully",
 			inputs: transfer.CreateTransferInput{
-				OriginAccountId:      account2.AccountID,
-				DestinationAccountId: account1.AccountID,
-				Amount:               10,
+				OriginAccount:      account2,
+				DestinationAccount: account1,
+				Amount:             10,
 			},
 			wantErr: nil,
 			wantResult: entities.Transfer{
@@ -77,21 +76,11 @@ func TestCreateTransfer(t *testing.T) {
 			},
 		},
 		{
-			name: "should return an error because account was not found",
-			inputs: transfer.CreateTransferInput{
-				OriginAccountId:      uuid.New().String(),
-				DestinationAccountId: account2.AccountID,
-				Amount:               50,
-			},
-			wantErr:    errors.New("not found"),
-			wantResult: entities.Transfer{},
-		},
-		{
 			name: "should return an error because amount is zero",
 			inputs: transfer.CreateTransferInput{
-				OriginAccountId:      account1.AccountID,
-				DestinationAccountId: account2.AccountID,
-				Amount:               0,
+				OriginAccount:      account1,
+				DestinationAccount: account2,
+				Amount:             0,
 			},
 			wantErr:    errors.New("the amount must be greater than zero"),
 			wantResult: entities.Transfer{},
@@ -99,9 +88,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return an error because amount is negative",
 			inputs: transfer.CreateTransferInput{
-				OriginAccountId:      account1.AccountID,
-				DestinationAccountId: account2.AccountID,
-				Amount:               -10,
+				OriginAccount:      account1,
+				DestinationAccount: account2,
+				Amount:             -10,
 			},
 			wantErr:    errors.New("the amount must be greater than zero"),
 			wantResult: entities.Transfer{},
@@ -109,9 +98,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return an error because accounts are equals",
 			inputs: transfer.CreateTransferInput{
-				OriginAccountId:      account1.AccountID,
-				DestinationAccountId: account1.AccountID,
-				Amount:               50,
+				OriginAccount:      account1,
+				DestinationAccount: account1,
+				Amount:             50,
 			},
 			wantErr:    errors.New("accounts must be different"),
 			wantResult: entities.Transfer{},
@@ -119,9 +108,9 @@ func TestCreateTransfer(t *testing.T) {
 		{
 			name: "should return an error because insufficient funds",
 			inputs: transfer.CreateTransferInput{
-				OriginAccountId:      account1.AccountID,
-				DestinationAccountId: account2.AccountID,
-				Amount:               500,
+				OriginAccount:      account1,
+				DestinationAccount: account2,
+				Amount:             500,
 			},
 			wantErr:    errors.New("insufficient funds"),
 			wantResult: entities.Transfer{},

@@ -46,18 +46,28 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
+	OriginAccount, err := h.accountUseCase.GetById(accountOriginID)
+	if err != nil {
+		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidDataTransfer)
+		return
+	}
+
+	DestinationAccountID, err := h.accountUseCase.GetById(body.DestinationAccountID)
+	if err != nil {
+		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidDataTransfer)
+		return
+	}
+
 	input := transfer.CreateTransferInput{
-		OriginAccountId:      accountOriginID,
-		DestinationAccountId: body.DestinationAccountID,
-		Amount:               body.Amount,
+		OriginAccount:      OriginAccount,
+		DestinationAccount: DestinationAccountID,
+		Amount:             body.Amount,
 	}
 
 	output, err := h.useCase.Create(input)
 
 	if err != nil {
 		switch {
-		case errors.Is(err, usecase.ErrNotFound):
-			http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidDataTransfer)
 		case errors.Is(err, usecase.ErrUnexpected):
 			http_server.ResponseError(w, http.StatusInternalServerError, err.Error())
 		default:
@@ -66,7 +76,7 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.accountUseCase.UpdateBalance(input.OriginAccountId, input.DestinationAccountId, input.Amount)
+	err = h.accountUseCase.UpdateBalance(input.OriginAccount.AccountID, input.DestinationAccount.AccountID, input.Amount)
 	if err != nil {
 		http_server.ResponseError(w, http.StatusInternalServerError, ErrUnexpected)
 		return

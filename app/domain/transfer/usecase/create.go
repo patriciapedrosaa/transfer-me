@@ -7,26 +7,17 @@ import (
 )
 
 var (
-	ErrNotFound   = errors.New("not found")
 	ErrUnexpected = errors.New("something went wrong")
 )
 
 func (t Transfer) Create(input transfer.CreateTransferInput) (entities.Transfer, error) {
-	originAccount, err := t.accountRepository.GetById(input.OriginAccountId)
-	if err != nil {
-		return entities.Transfer{}, ErrNotFound
-	}
-	destinationAccount, err := t.accountRepository.GetById(input.DestinationAccountId)
-	if err != nil {
-		return entities.Transfer{}, ErrNotFound
-	}
-	transfer, err := entities.NewCreateTransfers(originAccount, destinationAccount, input.Amount)
+	newTransfer, err := entities.NewTransfer(input.OriginAccount, input.DestinationAccount, input.Amount)
 	if err != nil {
 		return entities.Transfer{}, err
 	}
-	err = t.transferRepository.CreateTransfer(transfer, originAccount.AccountID)
+	err = t.transferRepository.CreateTransfer(newTransfer, input.OriginAccount.AccountID)
 	if err != nil {
 		return entities.Transfer{}, ErrUnexpected
 	}
-	return transfer, nil
+	return newTransfer, nil
 }
