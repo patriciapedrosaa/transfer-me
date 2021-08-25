@@ -33,14 +33,14 @@ func TestGetTransfers(t *testing.T) {
 	transferUseCase := NewTransferUseCase(&memoryStorage)
 
 	transfer1 := transfer.CreateTransferInput{
-		OriginAccountId:      account1.AccountID,
-		DestinationAccountId: account2.AccountID,
-		Amount:               50,
+		OriginAccount:      account1,
+		DestinationAccount: account2,
+		Amount:             50,
 	}
 	transfer2 := transfer.CreateTransferInput{
-		OriginAccountId:      account1.AccountID,
-		DestinationAccountId: account2.AccountID,
-		Amount:               10,
+		OriginAccount:      account1,
+		DestinationAccount: account2,
+		Amount:             10,
 	}
 
 	_, _ = transferUseCase.Create(transfer1)
