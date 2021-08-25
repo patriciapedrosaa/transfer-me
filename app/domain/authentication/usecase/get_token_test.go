@@ -10,11 +10,10 @@ import (
 )
 
 func TestGetToken(t *testing.T) {
-	accountStorage := make(map[string]memory.Account)
 	transferStorage := make(map[string][]memory.Transfer)
 	authenticationStorage := make(map[string]memory.Token)
-	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, authenticationStorage)
-	authenticationUsecase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
+	memoryStorage := memory.NewMemoryStorage(nil, transferStorage, authenticationStorage)
+	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage)
 
 	token := memory.Token{
 		ID:        uuid.New().String(),
@@ -27,7 +26,7 @@ func TestGetToken(t *testing.T) {
 	authenticationStorage[token.ID] = token
 
 	t.Run("Should return a token successfully", func(t *testing.T) {
-		got, err := authenticationUsecase.getToken(token.ID)
+		got, err := authenticationUseCase.getToken(token.ID)
 
 		assert.Equal(t, got.Subject, token.Subject)
 		assert.Equal(t, got.Issuer, token.Issuer)
@@ -37,7 +36,7 @@ func TestGetToken(t *testing.T) {
 
 	t.Run("should return error not found", func(t *testing.T) {
 		fakeId := uuid.New().String()
-		got, err := authenticationUsecase.getToken(fakeId)
+		got, err := authenticationUseCase.getToken(fakeId)
 
 		assert.Error(t, err)
 		assert.Empty(t, got)
