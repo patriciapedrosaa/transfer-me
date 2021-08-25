@@ -47,7 +47,7 @@ func TestCreate(t *testing.T) {
 
 		handler := createFakeHandler(transferID, accountOriginID, accountDestinationID, amount, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/transfers", bytes.NewReader(requestBody))
-		ctx := context.WithValue(request.Context(), http_server.ContextID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
+		ctx := context.WithValue(request.Context(), http_server.AccountID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
 
 		response := httptest.NewRecorder()
 		request.Header = header
@@ -70,7 +70,7 @@ func TestCreate(t *testing.T) {
 		badRequestBody, _ := json.Marshal(badBody)
 		handler := createFakeHandler("", "", "", 0, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/transfers", bytes.NewReader(badRequestBody))
-		ctx := context.WithValue(request.Context(), http_server.ContextID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
+		ctx := context.WithValue(request.Context(), http_server.AccountID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
 
 		response := httptest.NewRecorder()
 		request.Header = header
@@ -93,7 +93,7 @@ func TestCreate(t *testing.T) {
 		emptyRequestBody, _ := json.Marshal(emptyBody)
 		handler := createFakeHandler("", "", "", 0, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/transfers", bytes.NewReader(emptyRequestBody))
-		ctx := context.WithValue(request.Context(), http_server.ContextID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
+		ctx := context.WithValue(request.Context(), http_server.AccountID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
 
 		response := httptest.NewRecorder()
 		request.Header = header
@@ -111,7 +111,7 @@ func TestCreate(t *testing.T) {
 	t.Run("should return 400 and error when is missing fields", func(t *testing.T) {
 		handler := createFakeHandler("", "", "", 0, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/transfers", bytes.NewReader([]byte{}))
-		ctx := context.WithValue(request.Context(), http_server.ContextID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
+		ctx := context.WithValue(request.Context(), http_server.AccountID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
 		response := httptest.NewRecorder()
 		request.Header = header
 		handler.Create(response, request.WithContext(ctx))
@@ -153,7 +153,7 @@ func TestCreate(t *testing.T) {
 		err := usecase.ErrUnexpected
 		handler := createFakeHandler(transferID, accountOriginID, accountDestinationID, amount, err)
 		request, _ := http.NewRequest(http.MethodPost, "/transfers", bytes.NewReader(requestBody))
-		ctx := context.WithValue(request.Context(), http_server.ContextID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
+		ctx := context.WithValue(request.Context(), http_server.AccountID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
 		response := httptest.NewRecorder()
 		request.Header = header
 		handler.Create(response, request.WithContext(ctx))
@@ -174,7 +174,7 @@ func TestCreate(t *testing.T) {
 		err := errors.New("the amount must be greater than zero")
 		handler := createFakeHandler(transferID, accountOriginID, accountDestinationID, amount, err)
 		request, _ := http.NewRequest(http.MethodPost, "/transfers", bytes.NewReader(requestBody))
-		ctx := context.WithValue(request.Context(), http_server.ContextID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
+		ctx := context.WithValue(request.Context(), http_server.AccountID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
 		response := httptest.NewRecorder()
 		request.Header = header
 		handler.Create(response, request.WithContext(ctx))

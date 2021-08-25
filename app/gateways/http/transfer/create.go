@@ -26,7 +26,7 @@ type CreateTransferResponse struct {
 }
 
 func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
-	accountOriginID := r.Context().Value(http_server.ContextID).(string)
+	accountOriginID := r.Context().Value(http_server.AccountID).(string)
 
 	var body CreateTransferRequest
 	decoder := json.NewDecoder(r.Body)

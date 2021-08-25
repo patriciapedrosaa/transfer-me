@@ -12,7 +12,7 @@ type GetTransferResponse struct {
 }
 
 func (h Handler) Get(w http.ResponseWriter, r *http.Request) {
-	accountID := r.Context().Value(http_server.ContextID).(string)
+	accountID := r.Context().Value(http_server.AccountID).(string)
 
 	transferList, err := h.useCase.GetTransfersByAccountID(accountID)
 	if err != nil {

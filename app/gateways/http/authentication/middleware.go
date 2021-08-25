@@ -37,7 +37,7 @@ func (h Handler) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 		}
 		accountID := validToken.Subject
 
-		ctx := context.WithValue(r.Context(), http_server.ContextID, accountID)
+		ctx := context.WithValue(r.Context(), http_server.AccountID, accountID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }

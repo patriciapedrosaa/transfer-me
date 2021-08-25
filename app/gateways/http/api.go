@@ -11,9 +11,9 @@ const (
 	JsonContentType = "application/json"
 )
 
-type AccountIdContextKey string
+type RequestContextKey string
 
-var ContextID = AccountIdContextKey("id")
+var AccountID = RequestContextKey("account_id")
 
 type AccountHandler interface {
 	Create(w http.ResponseWriter, r *http.Request)
