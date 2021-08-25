@@ -67,7 +67,7 @@ func createGetFakeHandler(err error) Handler {
 			GetTransfersByAccountIDFunc: func(accountID string) ([]entities.Transfer, error) {
 				return nil, err
 			},
-		}, nil, nil)
+		}, nil)
 	}
 	return NewHandler(&transfer.UseCaseMock{
 		GetTransfersByAccountIDFunc: func(accountID string) ([]entities.Transfer, error) {
@@ -88,7 +88,7 @@ func createGetFakeHandler(err error) Handler {
 				},
 			}, nil
 		},
-	}, nil, nil)
+	}, nil)
 }
 
 func createFakeGetTransferResponse() []GetTransferResponse {

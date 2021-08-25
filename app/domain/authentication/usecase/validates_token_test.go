@@ -20,7 +20,7 @@ func TestValidatesToken(t *testing.T) {
 	authenticationStorage := make(map[string]memory.Token)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, authenticationStorage)
 	accountUseCase := au.NewAccountUseCase(&memoryStorage)
-	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
+	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage)
 
 	accountTest := account.CreateAccountInput{
 		Name:   "Patricia",

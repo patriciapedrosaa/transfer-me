@@ -13,7 +13,7 @@ func TestCreateToken(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	authenticationStorage := make(map[string]memory.Token)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, authenticationStorage)
-	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage, &memoryStorage)
+	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage)
 	accountUseCase := au.NewAccountUseCase(&memoryStorage)
 
 	accountTest := account.CreateAccountInput{
