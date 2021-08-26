@@ -189,7 +189,7 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
-	t.Run("should return 403 and error when amount is invalid", func(t *testing.T) {
+	t.Run("should return 400 and error when amount is invalid", func(t *testing.T) {
 		transferID := "0de9ec06-0ca4-4583-9ddc-585ec65a8c29"
 		accountOriginID := "642e0d44-9792-4d6f-9a04-b40186dddbef"
 		accountDestinationID := "6a00ac20-e07f-455f-a53c-37088c7b4255"
@@ -205,7 +205,7 @@ func TestCreate(t *testing.T) {
 		got := response.Body.String()
 		expected := `{"error":"the amount must be greater than zero"}`
 
-		assert.Equal(t, http.StatusForbidden, response.Code)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.Equal(t, expected, strings.TrimSpace(got))
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
