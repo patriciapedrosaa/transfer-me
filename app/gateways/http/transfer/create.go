@@ -46,21 +46,21 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	OriginAccount, err := h.accountUseCase.GetById(accountOriginID)
+	originAccount, err := h.accountUseCase.GetById(accountOriginID)
 	if err != nil {
 		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidDataTransfer)
 		return
 	}
 
-	DestinationAccountID, err := h.accountUseCase.GetById(body.DestinationAccountID)
+	destinationAccountID, err := h.accountUseCase.GetById(body.DestinationAccountID)
 	if err != nil {
 		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidDataTransfer)
 		return
 	}
 
 	input := transfer.CreateTransferInput{
-		OriginAccount:      OriginAccount,
-		DestinationAccount: DestinationAccountID,
+		OriginAccount:      originAccount,
+		DestinationAccount: destinationAccountID,
 		Amount:             body.Amount,
 	}
 
