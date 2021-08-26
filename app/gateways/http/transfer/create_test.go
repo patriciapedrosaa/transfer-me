@@ -153,7 +153,7 @@ func TestCreate(t *testing.T) {
 		accountDestinationID := badBody.DestinationAccountID
 		amount := badBody.Amount
 		err := account_usecase.ErrNotFound
-		handler := createFakeHandler(transferID, accountOriginID, accountDestinationID, amount, err, err, nil)
+		handler := createFakeHandler(transferID, accountOriginID, accountDestinationID, amount, nil, err, nil)
 		request, _ := http.NewRequest(http.MethodPost, "/transfers", bytes.NewReader(badRequestBody))
 		ctx := context.WithValue(request.Context(), http_server.AccountID, "642e0d44-9792-4d6f-9a04-b40186dddbef")
 		response := httptest.NewRecorder()
@@ -241,10 +241,17 @@ func createFakeHandler(transferID, AccountOriginID, AccountDestinationID string,
 			},
 		}, &account.UseCaseMock{
 			GetByIdFunc: func(id string) (entities.Account, error) {
-				return entities.Account{}, accountErr
+				return entities.Account{}, nil
 			},
 			UpdateBalanceFunc: func(originAccountId string, destinationAccountId string, amount int) error {
-				return errUpdateBalance
+				return nil
+			},
+		})
+	}
+	if accountErr != nil {
+		return NewHandler(nil, &account.UseCaseMock{
+			GetByIdFunc: func(id string) (entities.Account, error) {
+				return entities.Account{}, accountErr
 			},
 		})
 	}
@@ -259,6 +266,7 @@ func createFakeHandler(transferID, AccountOriginID, AccountDestinationID string,
 			},
 		})
 	}
+
 	return NewHandler(&transfer.UseCaseMock{
 		CreateFunc: func(input transfer.CreateTransferInput) (entities.Transfer, error) {
 			return entities.Transfer{
