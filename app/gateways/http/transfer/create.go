@@ -71,7 +71,7 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		case errors.Is(err, usecase.ErrUnexpected):
 			http_server.ResponseError(w, http.StatusInternalServerError, err.Error())
 		default:
-			http_server.ResponseError(w, http.StatusForbidden, err.Error())
+			http_server.ResponseError(w, http.StatusBadRequest, err.Error())
 		}
 		return
 	}

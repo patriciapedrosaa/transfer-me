@@ -16,7 +16,7 @@ func (h Handler) Get(w http.ResponseWriter, r *http.Request) {
 
 	transferList, err := h.useCase.GetTransfersByAccountID(accountID)
 	if err != nil {
-		http_server.ResponseError(w, http.StatusForbidden, ErrUnexpected)
+		http_server.ResponseError(w, http.StatusBadRequest, ErrUnexpected)
 		return
 	}
 

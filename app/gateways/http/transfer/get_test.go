@@ -41,7 +41,7 @@ func TestGet(t *testing.T) {
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
-	t.Run("should return 500 and an error message", func(t *testing.T) {
+	t.Run("should return 400 and an error message", func(t *testing.T) {
 		err := errors.New(ErrUnexpected)
 		handler := createGetFakeHandler(err)
 		request, _ := http.NewRequest(http.MethodGet, "/transfers", nil)
@@ -54,7 +54,7 @@ func TestGet(t *testing.T) {
 		got := response.Body.String()
 		expected := `{"error":"something went wrong"}`
 
-		assert.Equal(t, http.StatusForbidden, response.Code)
+		assert.Equal(t, http.StatusBadRequest, response.Code)
 		assert.Equal(t, expected, strings.TrimSpace(got))
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
