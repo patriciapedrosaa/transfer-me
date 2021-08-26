@@ -4,7 +4,6 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
-	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -35,7 +34,7 @@ func TestHandler_Authenticate(t *testing.T) {
 		authenticationMiddleware(response, request)
 
 		got := response.Body.String()
-		expected := "authenticated"
+		expected := authenticated
 
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, expected, strings.TrimSpace(got))
@@ -123,23 +122,6 @@ func TestHandler_Authenticate(t *testing.T) {
 
 func createFakeHandlerFunc() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		val := r.Context().Value(http_server.AccountID)
-		if val == nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			_, _ = w.Write([]byte(idNotPresent))
-			return
-		}
-		valStr, ok := val.(string)
-		if !ok {
-			w.WriteHeader(http.StatusUnauthorized)
-			_, _ = w.Write([]byte(notString))
-			return
-		}
-		if valStr != accountID {
-			w.WriteHeader(http.StatusUnauthorized)
-			_, _ = w.Write([]byte(wrongReqID))
-			return
-		}
 		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte(authenticated))
 		return
