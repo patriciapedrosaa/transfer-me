@@ -94,12 +94,18 @@ func createGetFakeHandler(err error) Handler {
 func createFakeGetTransferResponse() []GetTransferResponse {
 	return []GetTransferResponse{
 		{
-			TransferID: "6a00ac20-e07f-455f-a53c-37088c7b4266",
-			CreatedAt:  timeCreation,
+			TransferID:           "6a00ac20-e07f-455f-a53c-37088c7b4266",
+			Amount:               50,
+			AccountOriginID:      "642e0d44-9792-4d6f-9a04-b40186dddbef",
+			AccountDestinationID: "6a00ac20-e07f-455f-a53c-37088c7b4277",
+			CreatedAt:            timeCreation,
 		},
 		{
-			TransferID: "6a00ac20-e07f-455f-a53c-37088c7b4267",
-			CreatedAt:  timeCreation,
+			TransferID:           "6a00ac20-e07f-455f-a53c-37088c7b4267",
+			Amount:               50,
+			AccountOriginID:      "642e0d44-9792-4d6f-9a04-b40186dddbef",
+			AccountDestinationID: "6a00ac20-e07f-455f-a53c-37088c7b4277",
+			CreatedAt:            timeCreation,
 		},
 	}
 }
