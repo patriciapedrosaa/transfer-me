@@ -9,6 +9,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
@@ -19,8 +20,8 @@ func TestValidatesToken(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	authenticationStorage := make(map[string]memory.Token)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, authenticationStorage)
-	accountUseCase := au.NewAccountUseCase(&memoryStorage)
-	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage)
+	accountUseCase := au.NewAccountUseCase(&memoryStorage, zerolog.Logger{})
+	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage, zerolog.Logger{})
 
 	accountTest := account.CreateAccountInput{
 		Name:   "Patricia",

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -13,7 +14,7 @@ func TestGetToken(t *testing.T) {
 	transferStorage := make(map[string][]memory.Transfer)
 	authenticationStorage := make(map[string]memory.Token)
 	memoryStorage := memory.NewMemoryStorage(nil, transferStorage, authenticationStorage)
-	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage)
+	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage, zerolog.Logger{})
 
 	token := memory.Token{
 		ID:        uuid.New().String(),
