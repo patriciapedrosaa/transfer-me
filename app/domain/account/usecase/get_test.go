@@ -4,6 +4,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -11,7 +12,7 @@ import (
 func TestGetAccounts(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, nil)
-	accountUseCase := NewAccountUseCase(&memoryStorage)
+	accountUseCase := NewAccountUseCase(&memoryStorage, zerolog.Logger{})
 
 	fakeAccount1 := account.CreateAccountInput{
 		Name:   "Ronald Weasley",
