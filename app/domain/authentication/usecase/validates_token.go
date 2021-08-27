@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/golang-jwt/jwt"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+	"github.com/rs/zerolog/log"
 	"time"
 )
 
@@ -16,9 +17,11 @@ var (
 )
 
 func (a Authentication) ValidatesToken(tokenString string) (entities.Token, error) {
+	a.logger.Info().Msg("Validating token...")
 	keyFunc := func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
+			a.logger.Error().Err(ErrMethodInvalid).Msg("Occurred when was trying to validate token")
 			return nil, ErrMethodInvalid
 		}
 		return []byte(a.accessSecret), nil
@@ -28,18 +31,22 @@ func (a Authentication) ValidatesToken(tokenString string) (entities.Token, erro
 	if err != nil {
 		var jwtError *jwt.ValidationError
 		if errors.As(err, &jwtError) {
+			a.logger.Error().Err(err).Msg("Occurred when was trying to validate token")
 			return entities.Token{}, jwtError.Inner
 		}
+		log.Error().Err(err).Msg("Occurred when was trying to validate token")
 		return entities.Token{}, ErrInvalidToken
 	}
 
 	claims := jwtToken.Claims.(jwt.MapClaims)
 	iat, err := parseUnixToTime(claims["iat"])
 	if err != nil {
+		a.logger.Error().Err(err).Msg("Occurred when was trying to validate token")
 		return entities.Token{}, err
 	}
 	exp, err := parseUnixToTime(claims["exp"])
 	if err != nil {
+		a.logger.Error().Err(err).Msg("Occurred when was trying to validate token")
 		return entities.Token{}, err
 	}
 
@@ -54,9 +61,10 @@ func (a Authentication) ValidatesToken(tokenString string) (entities.Token, erro
 
 	_, err = a.getToken(token.ID)
 	if err != nil {
+		a.logger.Error().Err(err).Msg("Occurred when was trying to validate token")
 		return entities.Token{}, ErrTokenNotFound
 	}
-
+	a.logger.Info().Msg("Occurred when was trying to validate token")
 	return token, nil
 }
 
