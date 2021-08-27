@@ -7,6 +7,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -67,7 +68,7 @@ func createGetFakeHandler(err error) Handler {
 			GetTransfersByAccountIDFunc: func(accountID string) ([]entities.Transfer, error) {
 				return nil, err
 			},
-		}, nil)
+		}, nil, zerolog.Logger{})
 	}
 	return NewHandler(&transfer.UseCaseMock{
 		GetTransfersByAccountIDFunc: func(accountID string) ([]entities.Transfer, error) {
@@ -88,7 +89,7 @@ func createGetFakeHandler(err error) Handler {
 				},
 			}, nil
 		},
-	}, nil)
+	}, nil, zerolog.Logger{})
 }
 
 func createFakeGetTransferResponse() []GetTransferResponse {
