@@ -9,6 +9,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -188,5 +189,5 @@ func createFakeHandler(token string, errGetByCPF error, errCreateToken error) Ha
 				Balance:   100,
 				CreatedAt: time.Now(),
 			}, nil
-		}})
+		}}, zerolog.Logger{})
 }

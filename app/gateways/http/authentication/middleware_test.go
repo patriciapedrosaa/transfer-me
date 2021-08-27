@@ -4,6 +4,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -134,7 +135,7 @@ func createMiddlewareFakeHandler(err error) Handler {
 			ValidatesTokenFunc: func(tokenString string) (entities.Token, error) {
 				return entities.Token{}, err
 			},
-		}, nil)
+		}, nil, zerolog.Logger{})
 	}
 	return NewHandler(&authentication.UseCaseMock{
 		ValidatesTokenFunc: func(tokenString string) (entities.Token, error) {
@@ -147,5 +148,5 @@ func createMiddlewareFakeHandler(err error) Handler {
 				ExpiredAt: time.Now().Add(time.Minute * 15),
 			}, nil
 		},
-	}, nil)
+	}, nil, zerolog.Logger{})
 }
