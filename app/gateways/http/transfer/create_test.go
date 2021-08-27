@@ -12,6 +12,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer/usecase"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -246,14 +247,14 @@ func createFakeHandler(transferID, AccountOriginID, AccountDestinationID string,
 			UpdateBalanceFunc: func(originAccountId string, destinationAccountId string, amount int) error {
 				return nil
 			},
-		})
+		}, zerolog.Logger{})
 	}
 	if accountErr != nil {
 		return NewHandler(nil, &account.UseCaseMock{
 			GetByIdFunc: func(id string) (entities.Account, error) {
 				return entities.Account{}, accountErr
 			},
-		})
+		}, zerolog.Logger{})
 	}
 	if errUpdateBalance != nil {
 		return NewHandler(&transfer.UseCaseMock{
@@ -264,7 +265,7 @@ func createFakeHandler(transferID, AccountOriginID, AccountDestinationID string,
 			UpdateBalanceFunc: func(originAccountId string, destinationAccountId string, amount int) error {
 				return errUpdateBalance
 			},
-		})
+		}, zerolog.Logger{})
 	}
 
 	return NewHandler(&transfer.UseCaseMock{
@@ -284,5 +285,5 @@ func createFakeHandler(transferID, AccountOriginID, AccountDestinationID string,
 		UpdateBalanceFunc: func(originAccountId string, destinationAccountId string, amount int) error {
 			return nil
 		},
-	})
+	}, zerolog.Logger{})
 }
