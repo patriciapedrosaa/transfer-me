@@ -3,7 +3,7 @@ package http
 import (
 	"encoding/json"
 	"github.com/gorilla/mux"
-	"log"
+	"github.com/rs/zerolog"
 	"net/http"
 )
 
@@ -35,13 +35,15 @@ type Api struct {
 	Account  AccountHandler
 	Auth     AuthenticationHandler
 	Transfer TransferHandler
+	Logger   zerolog.Logger
 }
 
-func NewApi(account AccountHandler, auth AuthenticationHandler, transfer TransferHandler) Api {
+func NewApi(account AccountHandler, auth AuthenticationHandler, transfer TransferHandler, logger zerolog.Logger) Api {
 	return Api{
 		Account:  account,
 		Auth:     auth,
 		Transfer: transfer,
+		Logger:   logger,
 	}
 }
 
@@ -54,7 +56,9 @@ func (a Api) Start(port string) {
 	r.HandleFunc("/transfers", a.Auth.Authenticate(a.Transfer.Create)).Methods(http.MethodPost)
 	r.HandleFunc("/transfers", a.Auth.Authenticate(a.Transfer.Get)).Methods(http.MethodGet)
 
-	log.Fatal(http.ListenAndServe(port, r))
+	if err := http.ListenAndServe(port, r); err != nil {
+		a.Logger.Fatal().Err(err).Msg("Startup failed")
+	}
 }
 
 func ResponseError(w http.ResponseWriter, code int, message string) {
