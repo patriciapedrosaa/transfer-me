@@ -8,6 +8,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/vos"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -78,7 +79,7 @@ func TestCreate(t *testing.T) {
 			Secret: "MySecret",
 		}
 		requestBody, _ := json.Marshal(body)
-		handler := NewHandler(nil)
+		handler := NewHandler(nil, zerolog.Logger{})
 		request, _ := http.NewRequest(http.MethodPost, "/accounts", bytes.NewReader(requestBody))
 		response := httptest.NewRecorder()
 
@@ -136,7 +137,7 @@ func createFakeHandler(err error) Handler {
 			CreateFunc: func(input account.CreateAccountInput) (entities.Account, error) {
 				return entities.Account{}, err
 			},
-		})
+		}, zerolog.Logger{})
 	}
 	return NewHandler(&account.UseCaseMock{
 		CreateFunc: func(input account.CreateAccountInput) (entities.Account, error) {
@@ -149,5 +150,5 @@ func createFakeHandler(err error) Handler {
 				CreatedAt: time.Now().UTC(),
 			}, nil
 		},
-	})
+	}, zerolog.Logger{})
 }
