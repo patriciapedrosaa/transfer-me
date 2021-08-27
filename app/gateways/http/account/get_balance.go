@@ -19,8 +19,14 @@ func (h Handler) GetBalance(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		switch err {
 		case errNotFound:
+			h.logger.Err(err).
+				Int("Status_code", http.StatusNotFound).
+				Msg("occurred when try get balance")
 			http_server.ResponseError(w, http.StatusNotFound, "not found")
 		default:
+			h.logger.Err(err).
+				Int("Status_code", http.StatusInternalServerError).
+				Msg("occurred when try get balance")
 			http_server.ResponseError(w, http.StatusInternalServerError, err.Error())
 		}
 		return
@@ -28,5 +34,8 @@ func (h Handler) GetBalance(w http.ResponseWriter, r *http.Request) {
 	response := GetBalanceResponse{
 		Balance: balance,
 	}
+	h.logger.Info().
+		Int("Status_code", http.StatusOK).
+		Msg("Balance was obtained successfully")
 	http_server.ResponseSuccess(w, http.StatusOK, response)
 }

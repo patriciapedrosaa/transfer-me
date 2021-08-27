@@ -6,6 +6,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -20,7 +21,7 @@ func TestGet(t *testing.T) {
 			GetAccountsFunc: func() ([]entities.Account, error) {
 				return []entities.Account{}, nil
 			},
-		})
+		}, zerolog.Logger{})
 
 		request, _ := http.NewRequest(http.MethodGet, "/accounts", nil)
 		response := httptest.NewRecorder()
@@ -55,7 +56,7 @@ func TestGet(t *testing.T) {
 		handler := NewHandler(&account.UseCaseMock{
 			GetAccountsFunc: func() ([]entities.Account, error) {
 				return nil, errors.New("something went wrong")
-			}})
+			}}, zerolog.Logger{})
 		request, _ := http.NewRequest(http.MethodGet, "/accounts", nil)
 		response := httptest.NewRecorder()
 
@@ -93,7 +94,7 @@ func generateFakeGetHandler() Handler {
 				},
 			}, nil
 		},
-	})
+	}, zerolog.Logger{})
 }
 
 func generateFakeGetAccountResponse() []GetAccountResponse {
