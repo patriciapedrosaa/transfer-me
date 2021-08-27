@@ -6,6 +6,7 @@ import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer"
 	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -14,7 +15,7 @@ func TestGetTransfers(t *testing.T) {
 	accountStorage := make(map[string]memory.Account)
 	transferStorage := make(map[string][]memory.Transfer)
 	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, nil)
-	accountUseCase := au.NewAccountUseCase(&memoryStorage)
+	accountUseCase := au.NewAccountUseCase(&memoryStorage, zerolog.Logger{})
 
 	createAccountInput1 := account.CreateAccountInput{
 		Name:   "John Locke",
@@ -30,7 +31,7 @@ func TestGetTransfers(t *testing.T) {
 	account1, _ := accountUseCase.Create(createAccountInput1)
 	account2, _ := accountUseCase.Create(createAccountInput2)
 
-	transferUseCase := NewTransferUseCase(&memoryStorage)
+	transferUseCase := NewTransferUseCase(&memoryStorage, zerolog.Logger{})
 
 	transfer1 := transfer.CreateTransferInput{
 		OriginAccount:      account1,
