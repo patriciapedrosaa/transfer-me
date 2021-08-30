@@ -15,8 +15,8 @@ func (h Handler) Get(w http.ResponseWriter, _ *http.Request) {
 	accountsList, err := h.useCase.GetAccounts()
 	if err != nil {
 		h.logger.Err(err).
-			Int("Status_code", http.StatusInternalServerError).
-			Msg("occurred when try get accounts")
+			Int("status_code", http.StatusInternalServerError).
+			Msg("error occurred when try get accounts")
 		http_server.ResponseError(w, http.StatusInternalServerError, "something went wrong")
 		return
 	}
@@ -28,8 +28,9 @@ func (h Handler) Get(w http.ResponseWriter, _ *http.Request) {
 		response[index].CPF = string(account.CPF)
 	}
 	h.logger.Info().
-		Int("Status:", http.StatusOK).
-		Msgf("Accounts were successfully listed. Total accounts listed: %d", len(accountsList))
+		Int("status:", http.StatusOK).
+		Int("total accounts listed", len(accountsList)).
+		Msg("accounts were successfully listed.")
 
 	http_server.ResponseSuccess(w, http.StatusOK, response)
 }
