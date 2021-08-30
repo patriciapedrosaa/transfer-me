@@ -12,17 +12,24 @@ var (
 )
 
 func (a Authentication) checkLogin(inputs authentication.LoginInputs) (bool, error) {
-	a.logger.Info().Msgf("Checking login for CPF: %s...", inputs.CPF)
+	a.logger.Info().
+		Str("account_CPF terminated in", inputs.CPF[len(inputs.CPF)-3:]).
+		Msg("starting check login CPF.")
 	isValidCPF := inputs.CPF == string(inputs.Account.CPF)
 	if !isValidCPF {
-		a.logger.Error().Err(ErrInvalidCPF).Msgf("Occurred when was validating the CPF: %s", inputs.CPF)
+		a.logger.Error().
+			Err(ErrInvalidCPF).
+			Str("account_CPF terminated in", inputs.CPF[len(inputs.CPF)-3:]).
+			Msg("error occurred when was validating the CPF")
 		return false, ErrInvalidCPF
 	}
 	err := vos.CompareHashAndSecret(inputs.Secret, string(inputs.Account.Secret))
 	if err != nil {
-		a.logger.Error().Err(err).Msgf("Occurred when was validating secret for CPF: %s", inputs.CPF)
+		a.logger.Error().Err(err).Msg("error occurred when was validating secret")
 		return false, ErrInvalidSecret
 	}
-	a.logger.Info().Msgf("Login was validated with success for CPF: %s", inputs.CPF)
+	a.logger.Info().
+		Str("account_CPF terminated in", inputs.CPF[len(inputs.CPF)-3:]).
+		Msg("login was validated with success!")
 	return true, err
 }
