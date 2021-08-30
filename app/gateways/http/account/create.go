@@ -30,19 +30,18 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	if err := decoder.Decode(&body); err != nil {
 		h.logger.Err(err).
-			Int("Status_code", http.StatusBadRequest).
-			Msg("Occurred when decoding body")
+			Int("status_code", http.StatusBadRequest).
+			Msg("error occurred when decoding body")
 		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidPayload)
 		return
 	}
 
 	validator := http_server.NewJSONValidator()
 	err := validator.Validate(body)
-	h.logger.Info().Msgf("Create account request: %v", body)
 	if err != nil {
 		h.logger.Err(err).
-			Int("Status_code", http.StatusBadRequest).
-			Msg("Occurred when was validating body")
+			Int("status_code", http.StatusBadRequest).
+			Msg("error occurred when was validating body")
 		http_server.ResponseError(w, http.StatusBadRequest, ErrRequiredFields)
 		return
 	}
@@ -58,8 +57,8 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 	output, err := h.useCase.Create(input)
 	if err != nil {
 		h.logger.Err(err).
-			Int("Status_code", http.StatusBadRequest).
-			Msg("Occurred when trying to create an account.")
+			Int("status_code", http.StatusBadRequest).
+			Msg("error occurred when trying to create an account.")
 		http_server.ResponseError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -69,9 +68,9 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		Name:      output.Name,
 	}
 	h.logger.Info().
-		Str("AccountID:", response.AccountID).
-		Int("Status:", http.StatusCreated).
-		Msg("Account created with success")
+		Str("account_ID:", response.AccountID).
+		Int("status:", http.StatusCreated).
+		Msg("account was created successfully!")
 
 	http_server.ResponseSuccess(w, http.StatusCreated, response)
 }

@@ -6,12 +6,18 @@ import (
 )
 
 func (a Account) GetByCpf(cpf string) (entities.Account, error) {
-	a.logger.Info().Msgf("Getting account by cpf: %s...", cpf)
+	a.logger.Info().
+		Str("CPF terminated in", cpf[len(cpf)-3:]).
+		Msgf("getting account by CPF.")
 	account, err := a.repository.GetByCpf(cpf)
 	if err != nil {
-		log.Error().Err(err).Msgf("Occurred when was trying get account for cpf %s", cpf)
+		log.Error().Err(err).
+			Str("CPF terminated in", cpf[len(cpf)-3:]).
+			Msg("error occurred when was trying get account for cpf.")
 		return entities.Account{}, err
 	}
-	a.logger.Info().Msgf("Account for CPF %s was get with success", cpf)
+	a.logger.Info().
+		Str("CPF terminated in", cpf[len(cpf)-3:]).
+		Msg("account was get with success!")
 	return account, nil
 }

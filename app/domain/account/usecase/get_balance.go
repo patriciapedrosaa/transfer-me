@@ -1,10 +1,14 @@
 package usecase
 
 func (a Account) GetBalance(id string) (int, error) {
-	a.logger.Info().Msgf("Getting balance for account id: %s...", id)
+	a.logger.Info().
+		Str("account_ID", id).
+		Msg("getting balance for account id")
 	account, err := a.GetById(id)
 	if err != nil {
-		a.logger.Error().Err(err).Msgf("Occurred when was trying get balance for id %s", id)
+		a.logger.Error().Err(err).
+			Str("account_ID", id).
+			Msg("error occurred when was trying get balance for id")
 		return 0, err
 	}
 	return account.Balance, nil
