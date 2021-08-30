@@ -11,17 +11,34 @@ var (
 )
 
 func (t Transfer) Create(input transfer.CreateTransferInput) (entities.Transfer, error) {
-	t.logger.Info().Msgf("Creating account from origin account: %s to destination account: %s in the amount of: %d...", input.OriginAccount.AccountID, input.DestinationAccount.AccountID, input.Amount)
+	t.logger.Info().
+		Str("account_ID", input.OriginAccount.AccountID).
+		Str("account_ID", input.DestinationAccount.AccountID).
+		Int("amount", input.Amount).
+		Msg("creating transfer.")
 	newTransfer, err := entities.NewTransfer(input.OriginAccount, input.DestinationAccount, input.Amount)
 	if err != nil {
-		t.logger.Error().Err(err).Msgf("Occurred when was trying to create transfer from origin account: %s to destination account: %s in the amount of: %d.", input.OriginAccount.AccountID, input.DestinationAccount.AccountID, input.Amount)
+		t.logger.Error().Err(err).
+			Str("account_ID", input.OriginAccount.AccountID).
+			Str("account_ID", input.DestinationAccount.AccountID).
+			Int("amount", input.Amount).
+			Msgf("error occurred when was trying to create transfer")
 		return entities.Transfer{}, err
 	}
 	err = t.transferRepository.CreateTransfer(newTransfer, input.OriginAccount.AccountID)
 	if err != nil {
-		t.logger.Error().Err(err).Msgf("Occurred when was trying to create transfer from origin account: %s to destination account: %s in the amount of: %d.", input.OriginAccount.AccountID, input.DestinationAccount.AccountID, input.Amount)
+		t.logger.Error().Err(err).
+			Str("account_ID", input.OriginAccount.AccountID).
+			Str("account_ID", input.DestinationAccount.AccountID).
+			Int("amount", input.Amount).
+			Msgf("error occurred when was trying to create transfer")
 		return entities.Transfer{}, ErrUnexpected
 	}
-	t.logger.Info().Msgf("Transfer created with success from origin account: %s to destination account: %s in the amount of: %d. Transfer ID: %s", input.OriginAccount.AccountID, input.DestinationAccount.AccountID, input.Amount, newTransfer.TransferID)
+	t.logger.Info().
+		Str("transfer_ID", newTransfer.TransferID).
+		Str("account_ID", input.OriginAccount.AccountID).
+		Str("account_ID", input.DestinationAccount.AccountID).
+		Int("amount", input.Amount).
+		Msgf("transfer created with success!")
 	return newTransfer, nil
 }

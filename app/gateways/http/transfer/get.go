@@ -20,8 +20,8 @@ func (h Handler) Get(w http.ResponseWriter, r *http.Request) {
 	transferList, err := h.useCase.GetTransfersByAccountID(accountID)
 	if err != nil {
 		h.logger.Err(err).
-			Int("Status_code", http.StatusBadRequest).
-			Msg("occurred when try get transfers")
+			Int("status_code", http.StatusBadRequest).
+			Msg("error occurred when try get transfers")
 		http_server.ResponseError(w, http.StatusBadRequest, ErrUnexpected)
 		return
 	}
@@ -35,8 +35,9 @@ func (h Handler) Get(w http.ResponseWriter, r *http.Request) {
 		response[index].CreatedAt = transfer.CreatedAt
 	}
 	h.logger.Info().
-		Int("Status:", http.StatusOK).
-		Msgf("Transfers were successfully listed. Total transfers listed: %d", len(transferList))
+		Int("status_code", http.StatusOK).
+		Int("total transfers listed", len(transferList)).
+		Msg("transfers were successfully listed")
 
 	http_server.ResponseSuccess(w, http.StatusOK, response)
 
