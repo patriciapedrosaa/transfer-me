@@ -91,7 +91,7 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 		Token: output,
 	}
 	h.logger.Info().
-		Int("status_code:", http.StatusCreated).
+		Int("status_code", http.StatusCreated).
 		Msg("token created with success!")
 
 	http_server.ResponseSuccess(w, http.StatusCreated, response)

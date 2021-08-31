@@ -98,8 +98,8 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		TransferID: output.TransferID,
 	}
 	h.logger.Info().
-		Str("transfer_ID:", response.TransferID).
-		Int("status:", http.StatusCreated).
+		Str("transfer_ID", response.TransferID).
+		Int("status_code", http.StatusCreated).
 		Msg("transfer created with success")
 
 	http_server.ResponseSuccess(w, http.StatusCreated, response)
