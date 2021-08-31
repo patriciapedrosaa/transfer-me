@@ -5,14 +5,14 @@ import (
 )
 
 func (t Transfer) GetTransfersByAccountID(accountID string) ([]entities.Transfer, error) {
-	t.logger.Info().
+	log := t.logger.With().
 		Str("account_ID", accountID).
-		Msg("getting transfers for account id")
+		Logger()
+
+	log.Info().Msg("getting transfers for account id")
 	transfers, err := t.transferRepository.GetTransfersByAccountID(accountID)
 	if err != nil {
-		t.logger.Error().Err(err).
-			Str("account_ID", accountID).
-			Msg("error occurred when was trying to get transfer for account id")
+		log.Error().Err(err).Msg("error occurred when was trying to get transfer for account id")
 		return []entities.Transfer{}, err
 	}
 	return transfers, nil

@@ -12,22 +12,17 @@ func (a Authentication) CreateToken(login authentication.LoginInputs) (string, e
 		return "", err
 	}
 
-	a.logger.Info().
-		Str("CPF terminated in", login.CPF[len(login.CPF)-3:]).
-		Msg("creating token for CPF.")
+	log := a.logger.With().Str("CPF", "********"+login.CPF[len(login.CPF)-3:]).Logger()
+	log.Info().Msg("creating token for CPF.")
 	token, err := entities.NewCreateToken(login.Account.Name, login.Account.AccountID)
 	if err != nil {
-		a.logger.Error().Err(err).
-			Str("CPF terminated in", login.CPF[len(login.CPF)-3:]).
-			Msg("error occurred when was trying to create token for CPF.")
+		log.Error().Err(err).Msg("error occurred when was trying to create token for CPF.")
 		return "", err
 	}
 
 	err = a.authenticationRepository.CreateToken(token)
 	if err != nil {
-		a.logger.Error().Err(err).
-			Str("CPF terminated in", login.CPF[len(login.CPF)-3:]).
-			Msg("error occurred when was trying to create token for CPF.")
+		log.Error().Err(err).Msg("error occurred when was trying to create token for CPF.")
 		return "", err
 	}
 
@@ -42,14 +37,10 @@ func (a Authentication) CreateToken(login authentication.LoginInputs) (string, e
 	accessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, atClaims)
 	accessTokenString, err := accessToken.SignedString([]byte(a.accessSecret))
 	if err != nil {
-		a.logger.Error().Err(err).
-			Str("CPF terminated in", login.CPF[len(login.CPF)-3:]).
-			Msg("error occurred when was trying to create token for CPF")
+		log.Error().Err(err).Msg("error occurred when was trying to create token for CPF")
 		return "", err
 	}
 
-	a.logger.Info().
-		Str("CPF terminated in", login.CPF[len(login.CPF)-3:]).
-		Msg("token created with success for CPF!")
+	log.Info().Msg("token created with success for CPF!")
 	return accessTokenString, nil
 }
