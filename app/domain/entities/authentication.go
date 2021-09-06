@@ -25,7 +25,7 @@ type Token struct {
 	ExpiredAt time.Time
 }
 
-func NewCreateToken(username, subject string) (Token, error) {
+func NewCreateToken(username, subject string) Token {
 	token := Token{
 		ID:       uuid.New().String(),
 		Name:     username,
@@ -35,5 +35,5 @@ func NewCreateToken(username, subject string) (Token, error) {
 	}
 	token.ExpiredAt = token.IssuedAt.Add(time.Minute * DURATION)
 
-	return token, nil
+	return token
 }

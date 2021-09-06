@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/golang-jwt/jwt"
@@ -16,7 +17,7 @@ var (
 	ErrDateFormatInvalid = errors.New("data format is invalid")
 )
 
-func (a Authentication) ValidatesToken(tokenString string) (entities.Token, error) {
+func (a Authentication) ValidatesToken(ctx context.Context, tokenString string) (entities.Token, error) {
 	a.logger.Info().Msg("validating token.")
 	keyFunc := func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodHMAC)
@@ -59,7 +60,7 @@ func (a Authentication) ValidatesToken(tokenString string) (entities.Token, erro
 		ExpiredAt: exp,
 	}
 
-	_, err = a.getToken(token.ID)
+	_, err = a.getToken(ctx, token.ID)
 	if err != nil {
 		a.logger.Error().Err(err).Msg("error occurred when was trying to validate token")
 		return entities.Token{}, ErrTokenNotFound

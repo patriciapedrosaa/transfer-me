@@ -1,47 +1,55 @@
 package usecase
 
 import (
-	"errors"
+	"context"
 	"github.com/google/uuid"
-	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
 
 func TestGetToken(t *testing.T) {
-	transferStorage := make(map[string][]memory.Transfer)
-	authenticationStorage := make(map[string]memory.Token)
-	memoryStorage := memory.NewMemoryStorage(nil, transferStorage, authenticationStorage)
-	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage, zerolog.Logger{})
-
-	token := memory.Token{
-		ID:        uuid.New().String(),
-		Subject:   uuid.New().String(),
-		Issuer:    "JWT",
-		IssuedAt:  time.Now(),
-		ExpiredAt: time.Now().Add(time.Minute * 15),
+	tests := []struct {
+		name           string
+		errCreateToken error
+		errGetToken    error
+		tokenID        string
+		wantError      error
+	}{
+		{
+			name:           "Should return a token successfully",
+			errCreateToken: nil,
+			errGetToken:    nil,
+			tokenID:        fakeToken.ID,
+			wantError:      nil,
+		},
+		{
+			name:           "Should return err not found",
+			errCreateToken: nil,
+			errGetToken:    ErrTokenNotFound,
+			tokenID:        uuid.New().String(),
+			wantError:      ErrTokenNotFound,
+		},
 	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repository := generateFakeAuthenticationRepository(tt.errCreateToken, tt.errGetToken)
+			authenticationUseCase := NewAuthenticationUseCase(&repository, zerolog.Logger{})
+			ctx := context.Background()
 
-	authenticationStorage[token.ID] = token
+			got, err := authenticationUseCase.getToken(ctx, tt.tokenID)
 
-	t.Run("Should return a token successfully", func(t *testing.T) {
-		got, err := authenticationUseCase.getToken(token.ID)
+			if tt.wantError == nil {
+				assert.Equal(t, got.Subject, fakeToken.Subject)
+				assert.Equal(t, got.Issuer, fakeToken.Issuer)
+				assert.Equal(t, got.Name, fakeToken.Name)
+				assert.Empty(t, err)
+			} else {
+				assert.Error(t, err)
+				assert.Empty(t, got)
+				assert.Equal(t, err, tt.wantError)
 
-		assert.Equal(t, got.Subject, token.Subject)
-		assert.Equal(t, got.Issuer, token.Issuer)
-		assert.Equal(t, got.Name, token.Name)
-		assert.Empty(t, err)
-	})
-
-	t.Run("should return error not found", func(t *testing.T) {
-		fakeId := uuid.New().String()
-		got, err := authenticationUseCase.getToken(fakeId)
-
-		assert.Error(t, err)
-		assert.Empty(t, got)
-		assert.Equal(t, err, errors.New("not found"))
-
-	})
+			}
+		})
+	}
 }

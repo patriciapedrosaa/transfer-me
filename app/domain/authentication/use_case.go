@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"context"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 )
 
@@ -13,6 +14,6 @@ type LoginInputs struct {
 }
 
 type UseCase interface {
-	CreateToken(login LoginInputs) (string, error)
-	ValidatesToken(tokenString string) (entities.Token, error)
+	CreateToken(ctx context.Context, login LoginInputs) (string, error)
+	ValidatesToken(ctx context.Context, tokenString string) (entities.Token, error)
 }

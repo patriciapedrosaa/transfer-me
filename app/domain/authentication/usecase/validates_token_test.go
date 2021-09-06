@@ -1,14 +1,11 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
-	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
-	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
-	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
-	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"os"
@@ -17,70 +14,73 @@ import (
 )
 
 func TestValidatesToken(t *testing.T) {
-	accountStorage := make(map[string]memory.Account)
-	authenticationStorage := make(map[string]memory.Token)
-	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, authenticationStorage)
-	accountUseCase := au.NewAccountUseCase(&memoryStorage, zerolog.Logger{})
-	authenticationUseCase := NewAuthenticationUseCase(&memoryStorage, zerolog.Logger{})
-
-	accountTest := account.CreateAccountInput{
-		Name:   "Patricia",
-		CPF:    "12345678918",
-		Secret: "foobar",
+	tests := []struct {
+		name           string
+		errCreateToken error
+		errGetToken    error
+		token          string
+		wantErr        error
+		wantResult     entities.Token
+	}{
+		{
+			name:           "Should return a token successfully",
+			errCreateToken: nil,
+			errGetToken:    nil,
+			token:          generateFakeToken(),
+			wantErr:        nil,
+			wantResult:     fakeToken,
+		},
+		{
+			name:           "Should return error because token signature method is invalid",
+			errCreateToken: nil,
+			errGetToken:    nil,
+			token:          "eyJhbGciOiJQUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.VMOk4ckLBFstkXMK0FuApNcG2FqNjs0_D8YubBKDOJ09IQV5XEexJBUv9YYkf60JBphZw_puMMEYlOGzlvgTCNeVCmzCDTPG2mvyuUG80ZPM-3B_uZyt23TbHKNF5GFvDa0X3Fa-aXTrM4cwjMVSku0YEbTKNvN1Ei3tyuQaPEWFRG-0Z6X_7ATSDYjrhmOk-RKP6dj5Yd2f4xMPf1ab4u9u98HFHBubmXR0dl9HmnVPfOwGCn0DuA9YqfG_NEzDaUVFTWsoBIajDYDZSbtHFp-D5ylE3WbomkaYjxpkZAAHAXyXwExW1QM3FM_JZZhmMywuOuIa0gZJAwOUvXuoyg",
+			wantErr:        ErrMethodInvalid,
+			wantResult:     entities.Token{},
+		},
+		{
+			name:           "Should return error because token expired",
+			errCreateToken: nil,
+			errGetToken:    nil,
+			token:          generateExpiredToken(fakeToken.Name, fakeAccount.AccountID),
+			wantErr:        errors.New("Token is expired"),
+			wantResult:     entities.Token{},
+		},
+		{
+			name:           "Should return error because token is not found",
+			errCreateToken: nil,
+			errGetToken:    ErrTokenNotFound,
+			token:          generateFakeToken(),
+			wantErr:        ErrTokenNotFound,
+			wantResult:     entities.Token{},
+		},
 	}
-	accountCreated, _ := accountUseCase.Create(accountTest)
-	user1 := authentication.LoginInputs{
-		CPF:     "12345678918",
-		Secret:  "foobar",
-		Account: accountCreated,
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			repository := generateFakeAuthenticationRepository(tt.errCreateToken, tt.errGetToken)
+			authenticationUseCase := NewAuthenticationUseCase(&repository, zerolog.Logger{})
+			ctx := context.Background()
+
+			got, err := authenticationUseCase.ValidatesToken(ctx, tt.token)
+
+			if tt.wantErr == nil {
+				assert.NotEmpty(t, got)
+				assert.NotEmpty(t, got.ID)
+				assert.NotEmpty(t, got.IssuedAt)
+				assert.NotEmpty(t, got.ExpiredAt)
+				assert.Equal(t, fakeAccount.AccountID, got.Subject)
+				assert.Equal(t, fakeAccount.Name, got.Name)
+				assert.Equal(t, got.Issuer, entities.ISSUER)
+				assert.Empty(t, err)
+			} else {
+				assert.Empty(t, got)
+				assert.Error(t, err)
+				assert.Equal(t, tt.wantErr, err)
+			}
+
+		})
 	}
 
-	token, _ := authenticationUseCase.CreateToken(user1)
-
-	t.Run("Should return a token successfully", func(t *testing.T) {
-		got, err := authenticationUseCase.ValidatesToken(token)
-
-		assert.NotEmpty(t, got)
-		assert.NotEmpty(t, got.ID)
-		assert.NotEmpty(t, got.IssuedAt)
-		assert.NotEmpty(t, got.ExpiredAt)
-		assert.Equal(t, got.Subject, accountCreated.AccountID)
-		assert.Equal(t, got.Name, accountCreated.Name)
-		assert.Equal(t, got.Issuer, entities.ISSUER)
-		assert.Empty(t, err)
-	})
-
-	t.Run("Should return error because token signature method is invalid", func(t *testing.T) {
-		wrongToken := "eyJhbGciOiJQUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.VMOk4ckLBFstkXMK0FuApNcG2FqNjs0_D8YubBKDOJ09IQV5XEexJBUv9YYkf60JBphZw_puMMEYlOGzlvgTCNeVCmzCDTPG2mvyuUG80ZPM-3B_uZyt23TbHKNF5GFvDa0X3Fa-aXTrM4cwjMVSku0YEbTKNvN1Ei3tyuQaPEWFRG-0Z6X_7ATSDYjrhmOk-RKP6dj5Yd2f4xMPf1ab4u9u98HFHBubmXR0dl9HmnVPfOwGCn0DuA9YqfG_NEzDaUVFTWsoBIajDYDZSbtHFp-D5ylE3WbomkaYjxpkZAAHAXyXwExW1QM3FM_JZZhmMywuOuIa0gZJAwOUvXuoyg"
-		wantErr := ErrMethodInvalid
-		got, err := authenticationUseCase.ValidatesToken(wrongToken)
-
-		assert.Empty(t, got)
-		assert.Error(t, err)
-		assert.Equal(t, wantErr, err)
-	})
-
-	t.Run("Should return error because token expired", func(t *testing.T) {
-		expiredToken := generateExpiredToken(accountCreated.Name, accountCreated.AccountID)
-		wantErr := errors.New("Token is expired")
-
-		got, err := authenticationUseCase.ValidatesToken(expiredToken)
-
-		assert.Empty(t, got)
-		assert.Error(t, err)
-		assert.Equal(t, wantErr, err)
-	})
-
-	t.Run("Should return error because token is not in database", func(t *testing.T) {
-		fakeToken := generateFakeToken()
-		wantErr := ErrTokenNotFound
-
-		got, err := authenticationUseCase.ValidatesToken(fakeToken)
-
-		assert.Empty(t, got)
-		assert.Error(t, err)
-		assert.Equal(t, wantErr, err)
-	})
 }
 
 func generateExpiredToken(username string, subject string) string {
@@ -111,9 +111,9 @@ func generateExpiredToken(username string, subject string) string {
 
 func generateFakeToken() string {
 	token := entities.Token{
-		ID:       uuid.New().String(),
-		Name:     "username",
-		Subject:  uuid.New().String(),
+		ID:       fakeToken.ID,
+		Name:     fakeToken.Name,
+		Subject:  fakeToken.Subject,
 		Issuer:   entities.ISSUER,
 		IssuedAt: time.Now(),
 	}
@@ -134,3 +134,51 @@ func generateFakeToken() string {
 	}
 	return accessTokenString
 }
+
+//t.Run("Should return a token successfully", func(t *testing.T) {
+//	repository := generateFakeAuthenticationRepository(tt.errCreateToken, tt.errGetToken)
+//	authenticationUseCase := NewAuthenticationUseCase(&repository, zerolog.Logger{})
+//	ctx := context.Background()
+//	got, err := authenticationUseCase.ValidatesToken(token)
+//
+//	assert.NotEmpty(t, got)
+//	assert.NotEmpty(t, got.ID)
+//	assert.NotEmpty(t, got.IssuedAt)
+//	assert.NotEmpty(t, got.ExpiredAt)
+//	assert.Equal(t, got.Subject, accountCreated.AccountID)
+//	assert.Equal(t, got.Name, accountCreated.Name)
+//	assert.Equal(t, got.Issuer, entities.ISSUER)
+//	assert.Empty(t, err)
+//})
+//
+//t.Run("Should return error because token signature method is invalid", func(t *testing.T) {
+//	wrongToken := "eyJhbGciOiJQUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.VMOk4ckLBFstkXMK0FuApNcG2FqNjs0_D8YubBKDOJ09IQV5XEexJBUv9YYkf60JBphZw_puMMEYlOGzlvgTCNeVCmzCDTPG2mvyuUG80ZPM-3B_uZyt23TbHKNF5GFvDa0X3Fa-aXTrM4cwjMVSku0YEbTKNvN1Ei3tyuQaPEWFRG-0Z6X_7ATSDYjrhmOk-RKP6dj5Yd2f4xMPf1ab4u9u98HFHBubmXR0dl9HmnVPfOwGCn0DuA9YqfG_NEzDaUVFTWsoBIajDYDZSbtHFp-D5ylE3WbomkaYjxpkZAAHAXyXwExW1QM3FM_JZZhmMywuOuIa0gZJAwOUvXuoyg"
+//	wantErr := ErrMethodInvalid
+//	got, err := authenticationUseCase.ValidatesToken(wrongToken)
+//
+//	assert.Empty(t, got)
+//	assert.Error(t, err)
+//	assert.Equal(t, wantErr, err)
+//})
+//
+//t.Run("Should return error because token expired", func(t *testing.T) {
+//	expiredToken := generateExpiredToken(accountCreated.Name, accountCreated.AccountID)
+//	wantErr := errors.New("Token is expired")
+//
+//	got, err := authenticationUseCase.ValidatesToken(expiredToken)
+//
+//	assert.Empty(t, got)
+//	assert.Error(t, err)
+//	assert.Equal(t, wantErr, err)
+//})
+//
+//t.Run("Should return error because token is not in database", func(t *testing.T) {
+//	fakeToken := generateFakeToken()
+//	wantErr := ErrTokenNotFound
+//
+//	got, err := authenticationUseCase.ValidatesToken(fakeToken)
+//
+//	assert.Empty(t, got)
+//	assert.Error(t, err)
+//	assert.Equal(t, wantErr, err)
+//})
