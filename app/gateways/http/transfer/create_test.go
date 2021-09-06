@@ -237,39 +237,39 @@ func TestCreate(t *testing.T) {
 func createFakeHandler(transferID, AccountOriginID, AccountDestinationID string, amount int, err error, accountErr error, errUpdateBalance error) Handler {
 	if err != nil {
 		return NewHandler(&transfer.UseCaseMock{
-			CreateFunc: func(input transfer.CreateTransferInput) (entities.Transfer, error) {
+			CreateFunc: func(ctx context.Context, input transfer.CreateTransferInput) (entities.Transfer, error) {
 				return entities.Transfer{}, err
 			},
 		}, &account.UseCaseMock{
-			GetByIdFunc: func(id string) (entities.Account, error) {
+			GetByIdFunc: func(ctx context.Context, id string) (entities.Account, error) {
 				return entities.Account{}, nil
 			},
-			UpdateBalanceFunc: func(originAccountId string, destinationAccountId string, amount int) error {
+			UpdateBalanceFunc: func(ctx context.Context, originAccountId string, destinationAccountId string, amount int) error {
 				return nil
 			},
 		}, zerolog.Logger{})
 	}
 	if accountErr != nil {
 		return NewHandler(nil, &account.UseCaseMock{
-			GetByIdFunc: func(id string) (entities.Account, error) {
+			GetByIdFunc: func(ctx context.Context, id string) (entities.Account, error) {
 				return entities.Account{}, accountErr
 			},
 		}, zerolog.Logger{})
 	}
 	if errUpdateBalance != nil {
 		return NewHandler(&transfer.UseCaseMock{
-			CreateFunc: func(input transfer.CreateTransferInput) (entities.Transfer, error) {
+			CreateFunc: func(ctx context.Context, input transfer.CreateTransferInput) (entities.Transfer, error) {
 				return fakeTransfer, nil
 			},
 		}, &account.UseCaseMock{
-			UpdateBalanceFunc: func(originAccountId string, destinationAccountId string, amount int) error {
+			UpdateBalanceFunc: func(ctx context.Context, originAccountId string, destinationAccountId string, amount int) error {
 				return errUpdateBalance
 			},
 		}, zerolog.Logger{})
 	}
 
 	return NewHandler(&transfer.UseCaseMock{
-		CreateFunc: func(input transfer.CreateTransferInput) (entities.Transfer, error) {
+		CreateFunc: func(ctx context.Context, input transfer.CreateTransferInput) (entities.Transfer, error) {
 			return entities.Transfer{
 				TransferID:           transferID,
 				AccountOriginID:      AccountOriginID,
@@ -279,10 +279,10 @@ func createFakeHandler(transferID, AccountOriginID, AccountDestinationID string,
 			}, nil
 		},
 	}, &account.UseCaseMock{
-		GetByIdFunc: func(id string) (entities.Account, error) {
+		GetByIdFunc: func(ctx context.Context, id string) (entities.Account, error) {
 			return fakeAccount, nil
 		},
-		UpdateBalanceFunc: func(originAccountId string, destinationAccountId string, amount int) error {
+		UpdateBalanceFunc: func(ctx context.Context, originAccountId string, destinationAccountId string, amount int) error {
 			return nil
 		},
 	}, zerolog.Logger{})

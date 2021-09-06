@@ -65,13 +65,13 @@ func TestGet(t *testing.T) {
 func createGetFakeHandler(err error) Handler {
 	if err != nil {
 		return NewHandler(&transfer.UseCaseMock{
-			GetTransfersByAccountIDFunc: func(accountID string) ([]entities.Transfer, error) {
+			GetTransfersByAccountIDFunc: func(ctx context.Context, accountID string) ([]entities.Transfer, error) {
 				return nil, err
 			},
 		}, nil, zerolog.Logger{})
 	}
 	return NewHandler(&transfer.UseCaseMock{
-		GetTransfersByAccountIDFunc: func(accountID string) ([]entities.Transfer, error) {
+		GetTransfersByAccountIDFunc: func(ctx context.Context, accountID string) ([]entities.Transfer, error) {
 			return []entities.Transfer{
 				{
 					TransferID:           "6a00ac20-e07f-455f-a53c-37088c7b4266",
