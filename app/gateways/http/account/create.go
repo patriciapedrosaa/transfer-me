@@ -24,6 +24,7 @@ type CreateAccountResponse struct {
 }
 
 func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	var body CreateAccountRequest
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
@@ -54,7 +55,7 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		CPF:    body.CPF,
 	}
 
-	output, err := h.useCase.Create(input)
+	output, err := h.useCase.Create(ctx, input)
 	if err != nil {
 		h.logger.Err(err).
 			Int("status_code", http.StatusBadRequest).
