@@ -14,8 +14,9 @@ type GetBalanceResponse struct {
 }
 
 func (h Handler) GetBalance(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	id := mux.Vars(r)["id"]
-	balance, err := h.useCase.GetBalance(id)
+	balance, err := h.useCase.GetBalance(ctx, id)
 	if err != nil {
 		switch err {
 		case errNotFound:

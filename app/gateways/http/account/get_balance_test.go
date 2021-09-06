@@ -1,6 +1,7 @@
 package account
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
@@ -15,7 +16,7 @@ import (
 func TestHandler_GetBalance(t *testing.T) {
 	t.Run("should return 200 and balance", func(t *testing.T) {
 		responseBody := GetBalanceResponse{Balance: 100}
-		handler := NewHandler(&account.UseCaseMock{GetBalanceFunc: func(id string) (int, error) {
+		handler := NewHandler(&account.UseCaseMock{GetBalanceFunc: func(ctx context.Context, id string) (int, error) {
 			return 100, nil
 		}}, zerolog.Logger{})
 		request, _ := http.NewRequest(http.MethodGet, "/accounts/id/balance", nil)
@@ -32,7 +33,7 @@ func TestHandler_GetBalance(t *testing.T) {
 	})
 
 	t.Run("should return 404 when account was not found", func(t *testing.T) {
-		handler := NewHandler(&account.UseCaseMock{GetBalanceFunc: func(id string) (int, error) {
+		handler := NewHandler(&account.UseCaseMock{GetBalanceFunc: func(ctx context.Context, id string) (int, error) {
 			return 0, errNotFound
 		}}, zerolog.Logger{})
 		request, _ := http.NewRequest(http.MethodGet, "/accounts/id/balance", nil)
@@ -49,7 +50,7 @@ func TestHandler_GetBalance(t *testing.T) {
 	})
 
 	t.Run("should return 500 and internal server error", func(t *testing.T) {
-		handler := NewHandler(&account.UseCaseMock{GetBalanceFunc: func(id string) (int, error) {
+		handler := NewHandler(&account.UseCaseMock{GetBalanceFunc: func(ctx context.Context, id string) (int, error) {
 			return 0, errors.New("something went wrong")
 		}}, zerolog.Logger{})
 		request, _ := http.NewRequest(http.MethodGet, "/accounts/id/balance", nil)

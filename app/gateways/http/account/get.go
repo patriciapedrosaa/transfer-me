@@ -11,8 +11,9 @@ type GetAccountResponse struct {
 	CPF       string `json:"cpf"`
 }
 
-func (h Handler) Get(w http.ResponseWriter, _ *http.Request) {
-	accountsList, err := h.useCase.GetAccounts()
+func (h Handler) Get(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	accountsList, err := h.useCase.GetAccounts(ctx)
 	if err != nil {
 		h.logger.Err(err).
 			Int("status_code", http.StatusInternalServerError).

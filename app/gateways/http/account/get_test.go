@@ -1,6 +1,7 @@
 package account
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
@@ -18,7 +19,7 @@ import (
 func TestGet(t *testing.T) {
 	t.Run("should return 200 and a empty list of accounts", func(t *testing.T) {
 		handler := NewHandler(&account.UseCaseMock{
-			GetAccountsFunc: func() ([]entities.Account, error) {
+			GetAccountsFunc: func(ctx context.Context) ([]entities.Account, error) {
 				return []entities.Account{}, nil
 			},
 		}, zerolog.Logger{})
@@ -54,7 +55,7 @@ func TestGet(t *testing.T) {
 
 	t.Run("should return 500 and a error message", func(t *testing.T) {
 		handler := NewHandler(&account.UseCaseMock{
-			GetAccountsFunc: func() ([]entities.Account, error) {
+			GetAccountsFunc: func(ctx context.Context) ([]entities.Account, error) {
 				return nil, errors.New("something went wrong")
 			}}, zerolog.Logger{})
 		request, _ := http.NewRequest(http.MethodGet, "/accounts", nil)
@@ -74,7 +75,7 @@ func TestGet(t *testing.T) {
 
 func generateFakeGetHandler() Handler {
 	return NewHandler(&account.UseCaseMock{
-		GetAccountsFunc: func() ([]entities.Account, error) {
+		GetAccountsFunc: func(ctx context.Context) ([]entities.Account, error) {
 			return []entities.Account{
 				{
 					AccountID: "6a00ac20-e07f-455f-a53c-37088c7b4266",
