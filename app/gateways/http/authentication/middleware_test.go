@@ -1,6 +1,7 @@
 package authentication
 
 import (
+	"context"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication/usecase"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
@@ -132,13 +133,13 @@ func createFakeHandlerFunc() http.HandlerFunc {
 func createMiddlewareFakeHandler(err error) Handler {
 	if err != nil {
 		return NewHandler(&authentication.UseCaseMock{
-			ValidatesTokenFunc: func(tokenString string) (entities.Token, error) {
+			ValidatesTokenFunc: func(ctx context.Context, tokenString string) (entities.Token, error) {
 				return entities.Token{}, err
 			},
 		}, nil, zerolog.Logger{})
 	}
 	return NewHandler(&authentication.UseCaseMock{
-		ValidatesTokenFunc: func(tokenString string) (entities.Token, error) {
+		ValidatesTokenFunc: func(ctx context.Context, tokenString string) (entities.Token, error) {
 			return entities.Token{
 				ID:        "0de9ec06-0ca4-4583-9ddc-585ec65a8c29",
 				Name:      "Olive Oyl",
