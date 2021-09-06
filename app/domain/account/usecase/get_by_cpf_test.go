@@ -1,58 +1,71 @@
 package usecase
 
 import (
-	"errors"
+	"context"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
-	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
+var fakeAccountGetByCPF = entities.Account{
+	Name:    "Dino Thomas",
+	CPF:     "12345678911",
+	Secret:  "foobar",
+	Balance: 100,
+}
+
 func TestGetByCpf(t *testing.T) {
-	accountStorage := make(map[string]memory.Account)
-	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, nil)
-	accountUseCase := NewAccountUseCase(&memoryStorage, zerolog.Logger{})
-
-	fakeAccount1 := account.CreateAccountInput{
-		Name:   "Dino Thomas",
-		CPF:    "12345678911",
-		Secret: "foobar",
-	}
-	account1, _ := accountUseCase.Create(fakeAccount1)
-
 	tests := []struct {
-		name       string
-		cpf        string
-		wantErr    error
-		wantResult entities.Account
+		name          string
+		repositoryErr error
+		cpf           string
+		wantErr       error
+		wantResult    entities.Account
 	}{
 		{
-			name:    "should return an account successfully",
-			cpf:     string(account1.CPF),
-			wantErr: nil,
-			wantResult: entities.Account{
-				Name:    "Dino Thomas",
-				CPF:     "12345678911",
-				Balance: 100,
-			},
+			name:          "should return an account successfully",
+			repositoryErr: nil,
+			cpf:           "12345678911",
+			wantErr:       nil,
+			wantResult:    fakeAccountGetByCPF,
 		},
 		{
-			name:       "should return err not found",
-			cpf:        "12345678922",
-			wantErr:    errors.New("not found"),
-			wantResult: entities.Account{},
+			name:          "should return err not found",
+			repositoryErr: ErrNotFound,
+			cpf:           "12345678922",
+			wantErr:       ErrNotFound,
+			wantResult:    entities.Account{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := accountUseCase.GetByCpf(tt.cpf)
+			repository := generateFakeGetByCPFRepository(tt.repositoryErr)
+			accountUseCase := NewAccountUseCase(&repository, zerolog.Logger{})
+			ctx := context.Background()
+
+			got, err := accountUseCase.GetByCpf(ctx, tt.cpf)
 
 			assert.Equal(t, tt.wantResult.Name, got.Name)
 			assert.Equal(t, tt.wantResult.CPF, got.CPF)
 			assert.Equal(t, tt.wantResult.Balance, got.Balance)
 			assert.Equal(t, tt.wantErr, err)
 		})
+	}
+}
+
+func generateFakeGetByCPFRepository(err error) account.RepositoryMock {
+	if err != nil {
+		return account.RepositoryMock{
+			GetByCpfFunc: func(ctx context.Context, cpf string) (entities.Account, error) {
+				return entities.Account{}, err
+			},
+		}
+	}
+	return account.RepositoryMock{
+		GetByCpfFunc: func(ctx context.Context, id string) (entities.Account, error) {
+			return fakeAccountGetByCPF, nil
+		},
 	}
 }

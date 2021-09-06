@@ -1,40 +1,40 @@
 package usecase
 
 import (
+	"context"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
-	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
+var (
+	fakeAccount1 = entities.Account{
+		Name:    "Ronald Weasley",
+		CPF:     "12345678910",
+		Secret:  "foobar",
+		Balance: 100,
+	}
+	fakeAccount2 = entities.Account{
+		Name:    "Ginevra Weasley",
+		CPF:     "12345678911",
+		Secret:  "foobar",
+		Balance: 100,
+	}
+)
+
 func TestGetAccounts(t *testing.T) {
-	accountStorage := make(map[string]memory.Account)
-	memoryStorage := memory.NewMemoryStorage(accountStorage, nil, nil)
-	accountUseCase := NewAccountUseCase(&memoryStorage, zerolog.Logger{})
-
-	fakeAccount1 := account.CreateAccountInput{
-		Name:   "Ronald Weasley",
-		CPF:    "12345678910",
-		Secret: "foobar",
-	}
-	fakeAccount2 := account.CreateAccountInput{
-		Name:   "Ginevra Weasley",
-		CPF:    "12345678911",
-		Secret: "foobar",
-	}
-	_, _ = accountUseCase.Create(fakeAccount1)
-	_, _ = accountUseCase.Create(fakeAccount2)
-
 	tests := []struct {
-		name       string
-		wantErr    error
-		wantResult []entities.Account
+		name          string
+		repositoryErr error
+		wantErr       error
+		wantResult    []entities.Account
 	}{
 		{
-			name:    "should return a list of account",
-			wantErr: nil,
+			name:          "should return a list of account",
+			repositoryErr: nil,
+			wantErr:       nil,
 			wantResult: []entities.Account{
 				{
 					Name:    "Ronald Weasley",
@@ -48,10 +48,20 @@ func TestGetAccounts(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:          "should return an error because repository returned an unexpected err",
+			repositoryErr: unexpectedRepositoryErr,
+			wantErr:       nil,
+			wantResult:    []entities.Account{},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := accountUseCase.GetAccounts()
+			repository := generateFakeGetAccountRepository(tt.repositoryErr)
+			accountUseCase := NewAccountUseCase(&repository, zerolog.Logger{})
+			ctx := context.Background()
+
+			got, err := accountUseCase.GetAccounts(ctx)
 
 			for k := range got {
 				assert.Equal(t, tt.wantResult[k].Name, got[k].Name)
@@ -61,5 +71,23 @@ func TestGetAccounts(t *testing.T) {
 			}
 			assert.Equal(t, tt.wantErr, err)
 		})
+	}
+}
+
+func generateFakeGetAccountRepository(err error) account.RepositoryMock {
+	if err != nil {
+		return account.RepositoryMock{
+			GetByCpfFunc: func(ctx context.Context, cpf string) (entities.Account, error) {
+				return entities.Account{}, err
+			},
+		}
+	}
+	return account.RepositoryMock{
+		GetAccountsFunc: func(ctx context.Context) ([]entities.Account, error) {
+			return []entities.Account{
+				fakeAccount1,
+				fakeAccount2,
+			}, nil
+		},
 	}
 }

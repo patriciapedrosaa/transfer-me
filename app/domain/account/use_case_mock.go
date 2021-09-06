@@ -4,6 +4,7 @@
 package account
 
 import (
+	"context"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"sync"
 )
@@ -18,22 +19,22 @@ var _ UseCase = &UseCaseMock{}
 //
 // 		// make and configure a mocked UseCase
 // 		mockedUseCase := &UseCaseMock{
-// 			CreateFunc: func(input CreateAccountInput) (entities.Account, error) {
+// 			CreateFunc: func(ctx context.Context, input CreateAccountInput) (entities.Account, error) {
 // 				panic("mock out the Create method")
 // 			},
-// 			GetAccountsFunc: func() ([]entities.Account, error) {
+// 			GetAccountsFunc: func(ctx context.Context) ([]entities.Account, error) {
 // 				panic("mock out the GetAccounts method")
 // 			},
-// 			GetBalanceFunc: func(id string) (int, error) {
+// 			GetBalanceFunc: func(ctx context.Context, id string) (int, error) {
 // 				panic("mock out the GetBalance method")
 // 			},
-// 			GetByCpfFunc: func(cpf string) (entities.Account, error) {
+// 			GetByCpfFunc: func(ctx context.Context, cpf string) (entities.Account, error) {
 // 				panic("mock out the GetByCpf method")
 // 			},
-// 			GetByIdFunc: func(id string) (entities.Account, error) {
+// 			GetByIdFunc: func(ctx context.Context, id string) (entities.Account, error) {
 // 				panic("mock out the GetById method")
 // 			},
-// 			UpdateBalanceFunc: func(originAccountId string, destinationAccountId string, amount int) error {
+// 			UpdateBalanceFunc: func(ctx context.Context, originAccountId string, destinationAccountId string, amount int) error {
 // 				panic("mock out the UpdateBalance method")
 // 			},
 // 		}
@@ -44,50 +45,62 @@ var _ UseCase = &UseCaseMock{}
 // 	}
 type UseCaseMock struct {
 	// CreateFunc mocks the Create method.
-	CreateFunc func(input CreateAccountInput) (entities.Account, error)
+	CreateFunc func(ctx context.Context, input CreateAccountInput) (entities.Account, error)
 
 	// GetAccountsFunc mocks the GetAccounts method.
-	GetAccountsFunc func() ([]entities.Account, error)
+	GetAccountsFunc func(ctx context.Context) ([]entities.Account, error)
 
 	// GetBalanceFunc mocks the GetBalance method.
-	GetBalanceFunc func(id string) (int, error)
+	GetBalanceFunc func(ctx context.Context, id string) (int, error)
 
 	// GetByCpfFunc mocks the GetByCpf method.
-	GetByCpfFunc func(cpf string) (entities.Account, error)
+	GetByCpfFunc func(ctx context.Context, cpf string) (entities.Account, error)
 
 	// GetByIdFunc mocks the GetById method.
-	GetByIdFunc func(id string) (entities.Account, error)
+	GetByIdFunc func(ctx context.Context, id string) (entities.Account, error)
 
 	// UpdateBalanceFunc mocks the UpdateBalance method.
-	UpdateBalanceFunc func(originAccountId string, destinationAccountId string, amount int) error
+	UpdateBalanceFunc func(ctx context.Context, originAccountId string, destinationAccountId string, amount int) error
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// Create holds details about calls to the Create method.
 		Create []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Input is the input argument value.
 			Input CreateAccountInput
 		}
 		// GetAccounts holds details about calls to the GetAccounts method.
 		GetAccounts []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 		}
 		// GetBalance holds details about calls to the GetBalance method.
 		GetBalance []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID string
 		}
 		// GetByCpf holds details about calls to the GetByCpf method.
 		GetByCpf []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Cpf is the cpf argument value.
 			Cpf string
 		}
 		// GetById holds details about calls to the GetById method.
 		GetById []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// ID is the id argument value.
 			ID string
 		}
 		// UpdateBalance holds details about calls to the UpdateBalance method.
 		UpdateBalance []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// OriginAccountId is the originAccountId argument value.
 			OriginAccountId string
 			// DestinationAccountId is the destinationAccountId argument value.
@@ -105,10 +118,12 @@ type UseCaseMock struct {
 }
 
 // Create calls CreateFunc.
-func (mock *UseCaseMock) Create(input CreateAccountInput) (entities.Account, error) {
+func (mock *UseCaseMock) Create(ctx context.Context, input CreateAccountInput) (entities.Account, error) {
 	callInfo := struct {
+		Ctx   context.Context
 		Input CreateAccountInput
 	}{
+		Ctx:   ctx,
 		Input: input,
 	}
 	mock.lockCreate.Lock()
@@ -121,16 +136,18 @@ func (mock *UseCaseMock) Create(input CreateAccountInput) (entities.Account, err
 		)
 		return accountOut, errOut
 	}
-	return mock.CreateFunc(input)
+	return mock.CreateFunc(ctx, input)
 }
 
 // CreateCalls gets all the calls that were made to Create.
 // Check the length with:
 //     len(mockedUseCase.CreateCalls())
 func (mock *UseCaseMock) CreateCalls() []struct {
+	Ctx   context.Context
 	Input CreateAccountInput
 } {
 	var calls []struct {
+		Ctx   context.Context
 		Input CreateAccountInput
 	}
 	mock.lockCreate.RLock()
@@ -140,9 +157,12 @@ func (mock *UseCaseMock) CreateCalls() []struct {
 }
 
 // GetAccounts calls GetAccountsFunc.
-func (mock *UseCaseMock) GetAccounts() ([]entities.Account, error) {
+func (mock *UseCaseMock) GetAccounts(ctx context.Context) ([]entities.Account, error) {
 	callInfo := struct {
-	}{}
+		Ctx context.Context
+	}{
+		Ctx: ctx,
+	}
 	mock.lockGetAccounts.Lock()
 	mock.calls.GetAccounts = append(mock.calls.GetAccounts, callInfo)
 	mock.lockGetAccounts.Unlock()
@@ -153,15 +173,17 @@ func (mock *UseCaseMock) GetAccounts() ([]entities.Account, error) {
 		)
 		return accountsOut, errOut
 	}
-	return mock.GetAccountsFunc()
+	return mock.GetAccountsFunc(ctx)
 }
 
 // GetAccountsCalls gets all the calls that were made to GetAccounts.
 // Check the length with:
 //     len(mockedUseCase.GetAccountsCalls())
 func (mock *UseCaseMock) GetAccountsCalls() []struct {
+	Ctx context.Context
 } {
 	var calls []struct {
+		Ctx context.Context
 	}
 	mock.lockGetAccounts.RLock()
 	calls = mock.calls.GetAccounts
@@ -170,11 +192,13 @@ func (mock *UseCaseMock) GetAccountsCalls() []struct {
 }
 
 // GetBalance calls GetBalanceFunc.
-func (mock *UseCaseMock) GetBalance(id string) (int, error) {
+func (mock *UseCaseMock) GetBalance(ctx context.Context, id string) (int, error) {
 	callInfo := struct {
-		ID string
+		Ctx context.Context
+		ID  string
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	mock.lockGetBalance.Lock()
 	mock.calls.GetBalance = append(mock.calls.GetBalance, callInfo)
@@ -186,17 +210,19 @@ func (mock *UseCaseMock) GetBalance(id string) (int, error) {
 		)
 		return nOut, errOut
 	}
-	return mock.GetBalanceFunc(id)
+	return mock.GetBalanceFunc(ctx, id)
 }
 
 // GetBalanceCalls gets all the calls that were made to GetBalance.
 // Check the length with:
 //     len(mockedUseCase.GetBalanceCalls())
 func (mock *UseCaseMock) GetBalanceCalls() []struct {
-	ID string
+	Ctx context.Context
+	ID  string
 } {
 	var calls []struct {
-		ID string
+		Ctx context.Context
+		ID  string
 	}
 	mock.lockGetBalance.RLock()
 	calls = mock.calls.GetBalance
@@ -205,10 +231,12 @@ func (mock *UseCaseMock) GetBalanceCalls() []struct {
 }
 
 // GetByCpf calls GetByCpfFunc.
-func (mock *UseCaseMock) GetByCpf(cpf string) (entities.Account, error) {
+func (mock *UseCaseMock) GetByCpf(ctx context.Context, cpf string) (entities.Account, error) {
 	callInfo := struct {
+		Ctx context.Context
 		Cpf string
 	}{
+		Ctx: ctx,
 		Cpf: cpf,
 	}
 	mock.lockGetByCpf.Lock()
@@ -221,16 +249,18 @@ func (mock *UseCaseMock) GetByCpf(cpf string) (entities.Account, error) {
 		)
 		return accountOut, errOut
 	}
-	return mock.GetByCpfFunc(cpf)
+	return mock.GetByCpfFunc(ctx, cpf)
 }
 
 // GetByCpfCalls gets all the calls that were made to GetByCpf.
 // Check the length with:
 //     len(mockedUseCase.GetByCpfCalls())
 func (mock *UseCaseMock) GetByCpfCalls() []struct {
+	Ctx context.Context
 	Cpf string
 } {
 	var calls []struct {
+		Ctx context.Context
 		Cpf string
 	}
 	mock.lockGetByCpf.RLock()
@@ -240,11 +270,13 @@ func (mock *UseCaseMock) GetByCpfCalls() []struct {
 }
 
 // GetById calls GetByIdFunc.
-func (mock *UseCaseMock) GetById(id string) (entities.Account, error) {
+func (mock *UseCaseMock) GetById(ctx context.Context, id string) (entities.Account, error) {
 	callInfo := struct {
-		ID string
+		Ctx context.Context
+		ID  string
 	}{
-		ID: id,
+		Ctx: ctx,
+		ID:  id,
 	}
 	mock.lockGetById.Lock()
 	mock.calls.GetById = append(mock.calls.GetById, callInfo)
@@ -256,17 +288,19 @@ func (mock *UseCaseMock) GetById(id string) (entities.Account, error) {
 		)
 		return accountOut, errOut
 	}
-	return mock.GetByIdFunc(id)
+	return mock.GetByIdFunc(ctx, id)
 }
 
 // GetByIdCalls gets all the calls that were made to GetById.
 // Check the length with:
 //     len(mockedUseCase.GetByIdCalls())
 func (mock *UseCaseMock) GetByIdCalls() []struct {
-	ID string
+	Ctx context.Context
+	ID  string
 } {
 	var calls []struct {
-		ID string
+		Ctx context.Context
+		ID  string
 	}
 	mock.lockGetById.RLock()
 	calls = mock.calls.GetById
@@ -275,12 +309,14 @@ func (mock *UseCaseMock) GetByIdCalls() []struct {
 }
 
 // UpdateBalance calls UpdateBalanceFunc.
-func (mock *UseCaseMock) UpdateBalance(originAccountId string, destinationAccountId string, amount int) error {
+func (mock *UseCaseMock) UpdateBalance(ctx context.Context, originAccountId string, destinationAccountId string, amount int) error {
 	callInfo := struct {
+		Ctx                  context.Context
 		OriginAccountId      string
 		DestinationAccountId string
 		Amount               int
 	}{
+		Ctx:                  ctx,
 		OriginAccountId:      originAccountId,
 		DestinationAccountId: destinationAccountId,
 		Amount:               amount,
@@ -294,18 +330,20 @@ func (mock *UseCaseMock) UpdateBalance(originAccountId string, destinationAccoun
 		)
 		return errOut
 	}
-	return mock.UpdateBalanceFunc(originAccountId, destinationAccountId, amount)
+	return mock.UpdateBalanceFunc(ctx, originAccountId, destinationAccountId, amount)
 }
 
 // UpdateBalanceCalls gets all the calls that were made to UpdateBalance.
 // Check the length with:
 //     len(mockedUseCase.UpdateBalanceCalls())
 func (mock *UseCaseMock) UpdateBalanceCalls() []struct {
+	Ctx                  context.Context
 	OriginAccountId      string
 	DestinationAccountId string
 	Amount               int
 } {
 	var calls []struct {
+		Ctx                  context.Context
 		OriginAccountId      string
 		DestinationAccountId string
 		Amount               int

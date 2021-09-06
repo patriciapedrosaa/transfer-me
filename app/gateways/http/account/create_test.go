@@ -2,6 +2,7 @@ package account
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
@@ -134,13 +135,13 @@ func TestCreate(t *testing.T) {
 func createFakeHandler(err error) Handler {
 	if err != nil {
 		return NewHandler(&account.UseCaseMock{
-			CreateFunc: func(input account.CreateAccountInput) (entities.Account, error) {
+			CreateFunc: func(ctx context.Context, input account.CreateAccountInput) (entities.Account, error) {
 				return entities.Account{}, err
 			},
 		}, zerolog.Logger{})
 	}
 	return NewHandler(&account.UseCaseMock{
-		CreateFunc: func(input account.CreateAccountInput) (entities.Account, error) {
+		CreateFunc: func(ctx context.Context, input account.CreateAccountInput) (entities.Account, error) {
 			return entities.Account{
 				AccountID: "6a00ac20-e07f-455f-a53c-37088c7b4266",
 				Name:      input.Name,
