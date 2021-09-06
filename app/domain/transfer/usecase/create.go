@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer"
@@ -10,7 +11,7 @@ var (
 	ErrUnexpected = errors.New("something went wrong")
 )
 
-func (t Transfer) Create(input transfer.CreateTransferInput) (entities.Transfer, error) {
+func (t Transfer) Create(ctx context.Context, input transfer.CreateTransferInput) (entities.Transfer, error) {
 	log := t.logger.With().
 		Str("account_ID", input.OriginAccount.AccountID).
 		Str("account_ID", input.DestinationAccount.AccountID).
@@ -23,7 +24,7 @@ func (t Transfer) Create(input transfer.CreateTransferInput) (entities.Transfer,
 		log.Error().Err(err).Msg("error occurred when was trying to create transfer")
 		return entities.Transfer{}, err
 	}
-	err = t.transferRepository.CreateTransfer(newTransfer, input.OriginAccount.AccountID)
+	err = t.transferRepository.CreateTransfer(ctx, newTransfer, input.OriginAccount.AccountID)
 	if err != nil {
 		log.Error().Err(err).Msg("error occurred when was trying to create transfer")
 		return entities.Transfer{}, ErrUnexpected
