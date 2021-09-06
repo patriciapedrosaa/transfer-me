@@ -17,7 +17,7 @@ var AccountID = RequestContextKey("account_id")
 
 type AccountHandler interface {
 	Create(w http.ResponseWriter, r *http.Request)
-	Get(w http.ResponseWriter, _ *http.Request)
+	Get(w http.ResponseWriter, r *http.Request)
 	GetBalance(w http.ResponseWriter, r *http.Request)
 }
 

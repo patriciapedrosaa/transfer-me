@@ -41,7 +41,8 @@ func (h Handler) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 			http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidAuthMethod)
 			return
 		}
-		validToken, err := h.useCase.ValidatesToken(tokenString[1])
+		ctx := r.Context()
+		validToken, err := h.useCase.ValidatesToken(ctx, tokenString[1])
 		if err != nil {
 			h.logger.Err(errors.New(ErrEmptyHeader)).
 				Int("status_code", http.StatusForbidden).
@@ -51,7 +52,7 @@ func (h Handler) Authenticate(next http.HandlerFunc) http.HandlerFunc {
 		}
 		accountID := validToken.Subject
 
-		ctx := context.WithValue(r.Context(), http_server.AccountID, accountID)
+		ctx = context.WithValue(r.Context(), http_server.AccountID, accountID)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	}
 }

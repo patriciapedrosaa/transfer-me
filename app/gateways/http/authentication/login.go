@@ -25,6 +25,7 @@ type LoginResponse struct {
 }
 
 func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	var body LoginRequest
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
@@ -50,7 +51,7 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	account, err := h.accountUseCase.GetByCpf(body.CPF)
+	account, err := h.accountUseCase.GetByCpf(ctx, body.CPF)
 	if err != nil {
 		h.logger.Err(err).
 			Int("status_code", http.StatusBadRequest).
@@ -65,7 +66,7 @@ func (h Handler) Login(w http.ResponseWriter, r *http.Request) {
 		Account: account,
 	}
 
-	output, err := h.useCase.CreateToken(input)
+	output, err := h.useCase.CreateToken(ctx, input)
 	if err != nil {
 		switch {
 		case errors.Is(err, usecase.ErrInvalidCPF):

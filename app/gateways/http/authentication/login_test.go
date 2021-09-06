@@ -2,6 +2,7 @@ package authentication
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
@@ -170,14 +171,14 @@ func TestLogin(t *testing.T) {
 
 func createFakeHandler(token string, errGetByCPF error, errCreateToken error) Handler {
 	return NewHandler(&authentication.UseCaseMock{
-		CreateTokenFunc: func(login authentication.LoginInputs) (string, error) {
+		CreateTokenFunc: func(ctx context.Context, login authentication.LoginInputs) (string, error) {
 			if errCreateToken != nil {
 				return "", errCreateToken
 			}
 			return token, nil
 		},
 	}, &account.UseCaseMock{
-		GetByCpfFunc: func(cpf string) (entities.Account, error) {
+		GetByCpfFunc: func(ctx context.Context, cpf string) (entities.Account, error) {
 			if errGetByCPF != nil {
 				return entities.Account{}, errGetByCPF
 			}
