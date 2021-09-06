@@ -1,6 +1,9 @@
 package transfer
 
-import "github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+import (
+	"context"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
+)
 
 //go:generate moq -stub -out use_case_mock.go . UseCase
 
@@ -11,6 +14,6 @@ type CreateTransferInput struct {
 }
 
 type UseCase interface {
-	Create(input CreateTransferInput) (entities.Transfer, error)
-	GetTransfersByAccountID(accountID string) ([]entities.Transfer, error)
+	Create(ctx context.Context, input CreateTransferInput) (entities.Transfer, error)
+	GetTransfersByAccountID(ctx context.Context, accountID string) ([]entities.Transfer, error)
 }

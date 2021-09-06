@@ -1,130 +1,141 @@
 package usecase
 
 import (
-	"errors"
-	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
-	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
+	"context"
+	"github.com/google/uuid"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer"
-	"github.com/patriciapedrosaa/transfer-me/app/gateways/db/memory"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
+)
+
+var (
+	fakeOriginAccount = entities.Account{
+		AccountID: uuid.New().String(),
+		Name:      "Julius",
+		CPF:       "12345678910",
+		Secret:    "secret",
+		Balance:   100,
+		CreatedAt: time.Now(),
+	}
+
+	fakeDestinationAccount = entities.Account{
+		AccountID: uuid.New().String(),
+		Name:      "Rochelle Rock",
+		CPF:       "12345678911",
+		Secret:    "secret",
+		Balance:   100,
+		CreatedAt: time.Now(),
+	}
 )
 
 func TestCreateTransfer(t *testing.T) {
-	accountStorage := make(map[string]memory.Account)
-	transferStorage := make(map[string][]memory.Transfer)
-	memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, nil)
-	accountUseCase := au.NewAccountUseCase(&memoryStorage, zerolog.Logger{})
-
-	createAccountInput1 := account.CreateAccountInput{
-		Name:   "John Locke",
-		CPF:    "12345678910",
-		Secret: "foobar",
-	}
-
-	createAccountInput2 := account.CreateAccountInput{
-		Name:   "Karl Marx",
-		CPF:    "12345678911",
-		Secret: "foobar",
-	}
-	account1, _ := accountUseCase.Create(createAccountInput1)
-	account2, _ := accountUseCase.Create(createAccountInput2)
-
-	transferUseCase := NewTransferUseCase(&memoryStorage, zerolog.Logger{})
-
-	fakeTransfer := transfer.CreateTransferInput{
-		OriginAccount:      account1,
-		DestinationAccount: account2,
-		Amount:             20,
-	}
-	_, _ = transferUseCase.Create(fakeTransfer)
-	_ = accountUseCase.UpdateBalance(account1.AccountID, account2.AccountID, fakeTransfer.Amount)
-
 	tests := []struct {
-		name       string
-		inputs     transfer.CreateTransferInput
-		wantErr    error
-		wantResult entities.Transfer
+		name              string
+		errCreateTransfer error
+		inputs            transfer.CreateTransferInput
+		wantErr           error
+		wantResult        entities.Transfer
 	}{
 		{
-			name: "should return a transfer successfully",
+			name:              "should return a transfer successfully",
+			errCreateTransfer: nil,
 			inputs: transfer.CreateTransferInput{
-				OriginAccount:      account1,
-				DestinationAccount: account2,
+				OriginAccount:      fakeOriginAccount,
+				DestinationAccount: fakeDestinationAccount,
 				Amount:             50,
 			},
 			wantErr: nil,
 			wantResult: entities.Transfer{
-				AccountOriginID:      account1.AccountID,
-				AccountDestinationID: account2.AccountID,
+				AccountOriginID:      fakeOriginAccount.AccountID,
+				AccountDestinationID: fakeDestinationAccount.AccountID,
 				Amount:               50,
 			},
 		},
 		{
-			name: "should return another transfer successfully",
+			name:              "should return an error because amount is zero",
+			errCreateTransfer: entities.ErrInvalidAmount,
 			inputs: transfer.CreateTransferInput{
-				OriginAccount:      account2,
-				DestinationAccount: account1,
-				Amount:             10,
-			},
-			wantErr: nil,
-			wantResult: entities.Transfer{
-				AccountOriginID:      account2.AccountID,
-				AccountDestinationID: account1.AccountID,
-				Amount:               10,
-			},
-		},
-		{
-			name: "should return an error because amount is zero",
-			inputs: transfer.CreateTransferInput{
-				OriginAccount:      account1,
-				DestinationAccount: account2,
+				OriginAccount:      fakeOriginAccount,
+				DestinationAccount: fakeDestinationAccount,
 				Amount:             0,
 			},
-			wantErr:    errors.New("the amount must be greater than zero"),
+			wantErr:    entities.ErrInvalidAmount,
 			wantResult: entities.Transfer{},
 		},
 		{
-			name: "should return an error because amount is negative",
+			name:              "should return an error because amount is negative",
+			errCreateTransfer: entities.ErrInvalidAmount,
 			inputs: transfer.CreateTransferInput{
-				OriginAccount:      account1,
-				DestinationAccount: account2,
+				OriginAccount:      fakeOriginAccount,
+				DestinationAccount: fakeDestinationAccount,
 				Amount:             -10,
 			},
-			wantErr:    errors.New("the amount must be greater than zero"),
+			wantErr:    entities.ErrInvalidAmount,
 			wantResult: entities.Transfer{},
 		},
 		{
-			name: "should return an error because accounts are equals",
+			name:              "should return an error because accounts are equals",
+			errCreateTransfer: entities.ErrInvalidDestinationAccount,
 			inputs: transfer.CreateTransferInput{
-				OriginAccount:      account1,
-				DestinationAccount: account1,
+				OriginAccount:      fakeOriginAccount,
+				DestinationAccount: fakeOriginAccount,
 				Amount:             50,
 			},
-			wantErr:    errors.New("accounts must be different"),
+			wantErr:    entities.ErrInvalidDestinationAccount,
 			wantResult: entities.Transfer{},
 		},
 		{
-			name: "should return an error because insufficient funds",
+			name:              "should return an error because insufficient funds",
+			errCreateTransfer: entities.ErrInvalidTransfer,
 			inputs: transfer.CreateTransferInput{
-				OriginAccount:      account1,
-				DestinationAccount: account2,
+				OriginAccount:      fakeOriginAccount,
+				DestinationAccount: fakeDestinationAccount,
 				Amount:             500,
 			},
-			wantErr:    errors.New("insufficient funds"),
+			wantErr:    entities.ErrInvalidTransfer,
 			wantResult: entities.Transfer{},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			transferCreated, err := transferUseCase.Create(tt.inputs)
+			repository := generateFakeTransferRepository(tt.errCreateTransfer, nil)
+			transferUseCase := NewTransferUseCase(&repository, zerolog.Logger{})
+			ctx := context.Background()
 
-			assert.Equal(t, tt.wantResult.AccountOriginID, transferCreated.AccountOriginID)
-			assert.Equal(t, tt.wantResult.AccountDestinationID, transferCreated.AccountDestinationID)
-			assert.Equal(t, tt.wantResult.Amount, transferCreated.Amount)
+			got, err := transferUseCase.Create(ctx, tt.inputs)
+
+			assert.Equal(t, tt.wantResult.AccountOriginID, got.AccountOriginID)
+			assert.Equal(t, tt.wantResult.AccountDestinationID, got.AccountDestinationID)
+			assert.Equal(t, tt.wantResult.Amount, got.Amount)
 			assert.Equal(t, tt.wantErr, err)
 		})
+	}
+}
+
+func generateFakeTransferRepository(errCreateTransfer, errGetTransfer error) transfer.RepositoryMock {
+	if errCreateTransfer != nil {
+		return transfer.RepositoryMock{
+			CreateTransferFunc: func(ctx context.Context, transfer entities.Transfer, accountID string) error {
+				return errCreateTransfer
+			},
+		}
+	}
+	if errGetTransfer != nil {
+		return transfer.RepositoryMock{
+			GetTransfersByAccountIDFunc: func(ctx context.Context, accountID string) ([]entities.Transfer, error) {
+				return []entities.Transfer{}, errGetTransfer
+			},
+		}
+	}
+	return transfer.RepositoryMock{
+		CreateTransferFunc: func(ctx context.Context, transfer entities.Transfer, accountID string) error {
+			return nil
+		},
+		GetTransfersByAccountIDFunc: func(ctx context.Context, accountID string) ([]entities.Transfer, error) {
+			return []entities.Transfer{}, nil
+		},
 	}
 }

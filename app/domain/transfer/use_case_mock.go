@@ -4,6 +4,7 @@
 package transfer
 
 import (
+	"context"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"sync"
 )
@@ -18,10 +19,10 @@ var _ UseCase = &UseCaseMock{}
 //
 // 		// make and configure a mocked UseCase
 // 		mockedUseCase := &UseCaseMock{
-// 			CreateFunc: func(input CreateTransferInput) (entities.Transfer, error) {
+// 			CreateFunc: func(ctx context.Context, input CreateTransferInput) (entities.Transfer, error) {
 // 				panic("mock out the Create method")
 // 			},
-// 			GetTransfersByAccountIDFunc: func(accountID string) ([]entities.Transfer, error) {
+// 			GetTransfersByAccountIDFunc: func(ctx context.Context, accountID string) ([]entities.Transfer, error) {
 // 				panic("mock out the GetTransfersByAccountID method")
 // 			},
 // 		}
@@ -32,20 +33,24 @@ var _ UseCase = &UseCaseMock{}
 // 	}
 type UseCaseMock struct {
 	// CreateFunc mocks the Create method.
-	CreateFunc func(input CreateTransferInput) (entities.Transfer, error)
+	CreateFunc func(ctx context.Context, input CreateTransferInput) (entities.Transfer, error)
 
 	// GetTransfersByAccountIDFunc mocks the GetTransfersByAccountID method.
-	GetTransfersByAccountIDFunc func(accountID string) ([]entities.Transfer, error)
+	GetTransfersByAccountIDFunc func(ctx context.Context, accountID string) ([]entities.Transfer, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// Create holds details about calls to the Create method.
 		Create []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Input is the input argument value.
 			Input CreateTransferInput
 		}
 		// GetTransfersByAccountID holds details about calls to the GetTransfersByAccountID method.
 		GetTransfersByAccountID []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// AccountID is the accountID argument value.
 			AccountID string
 		}
@@ -55,10 +60,12 @@ type UseCaseMock struct {
 }
 
 // Create calls CreateFunc.
-func (mock *UseCaseMock) Create(input CreateTransferInput) (entities.Transfer, error) {
+func (mock *UseCaseMock) Create(ctx context.Context, input CreateTransferInput) (entities.Transfer, error) {
 	callInfo := struct {
+		Ctx   context.Context
 		Input CreateTransferInput
 	}{
+		Ctx:   ctx,
 		Input: input,
 	}
 	mock.lockCreate.Lock()
@@ -71,16 +78,18 @@ func (mock *UseCaseMock) Create(input CreateTransferInput) (entities.Transfer, e
 		)
 		return transferOut, errOut
 	}
-	return mock.CreateFunc(input)
+	return mock.CreateFunc(ctx, input)
 }
 
 // CreateCalls gets all the calls that were made to Create.
 // Check the length with:
 //     len(mockedUseCase.CreateCalls())
 func (mock *UseCaseMock) CreateCalls() []struct {
+	Ctx   context.Context
 	Input CreateTransferInput
 } {
 	var calls []struct {
+		Ctx   context.Context
 		Input CreateTransferInput
 	}
 	mock.lockCreate.RLock()
@@ -90,10 +99,12 @@ func (mock *UseCaseMock) CreateCalls() []struct {
 }
 
 // GetTransfersByAccountID calls GetTransfersByAccountIDFunc.
-func (mock *UseCaseMock) GetTransfersByAccountID(accountID string) ([]entities.Transfer, error) {
+func (mock *UseCaseMock) GetTransfersByAccountID(ctx context.Context, accountID string) ([]entities.Transfer, error) {
 	callInfo := struct {
+		Ctx       context.Context
 		AccountID string
 	}{
+		Ctx:       ctx,
 		AccountID: accountID,
 	}
 	mock.lockGetTransfersByAccountID.Lock()
@@ -106,16 +117,18 @@ func (mock *UseCaseMock) GetTransfersByAccountID(accountID string) ([]entities.T
 		)
 		return transfersOut, errOut
 	}
-	return mock.GetTransfersByAccountIDFunc(accountID)
+	return mock.GetTransfersByAccountIDFunc(ctx, accountID)
 }
 
 // GetTransfersByAccountIDCalls gets all the calls that were made to GetTransfersByAccountID.
 // Check the length with:
 //     len(mockedUseCase.GetTransfersByAccountIDCalls())
 func (mock *UseCaseMock) GetTransfersByAccountIDCalls() []struct {
+	Ctx       context.Context
 	AccountID string
 } {
 	var calls []struct {
+		Ctx       context.Context
 		AccountID string
 	}
 	mock.lockGetTransfersByAccountID.RLock()
