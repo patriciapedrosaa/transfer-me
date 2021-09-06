@@ -4,6 +4,7 @@
 package authentication
 
 import (
+	"context"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"sync"
 )
@@ -18,10 +19,10 @@ var _ UseCase = &UseCaseMock{}
 //
 // 		// make and configure a mocked UseCase
 // 		mockedUseCase := &UseCaseMock{
-// 			CreateTokenFunc: func(login LoginInputs) (string, error) {
+// 			CreateTokenFunc: func(ctx context.Context, login LoginInputs) (string, error) {
 // 				panic("mock out the CreateToken method")
 // 			},
-// 			ValidatesTokenFunc: func(tokenString string) (entities.Token, error) {
+// 			ValidatesTokenFunc: func(ctx context.Context, tokenString string) (entities.Token, error) {
 // 				panic("mock out the ValidatesToken method")
 // 			},
 // 		}
@@ -32,20 +33,24 @@ var _ UseCase = &UseCaseMock{}
 // 	}
 type UseCaseMock struct {
 	// CreateTokenFunc mocks the CreateToken method.
-	CreateTokenFunc func(login LoginInputs) (string, error)
+	CreateTokenFunc func(ctx context.Context, login LoginInputs) (string, error)
 
 	// ValidatesTokenFunc mocks the ValidatesToken method.
-	ValidatesTokenFunc func(tokenString string) (entities.Token, error)
+	ValidatesTokenFunc func(ctx context.Context, tokenString string) (entities.Token, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
 		// CreateToken holds details about calls to the CreateToken method.
 		CreateToken []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// Login is the login argument value.
 			Login LoginInputs
 		}
 		// ValidatesToken holds details about calls to the ValidatesToken method.
 		ValidatesToken []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
 			// TokenString is the tokenString argument value.
 			TokenString string
 		}
@@ -55,10 +60,12 @@ type UseCaseMock struct {
 }
 
 // CreateToken calls CreateTokenFunc.
-func (mock *UseCaseMock) CreateToken(login LoginInputs) (string, error) {
+func (mock *UseCaseMock) CreateToken(ctx context.Context, login LoginInputs) (string, error) {
 	callInfo := struct {
+		Ctx   context.Context
 		Login LoginInputs
 	}{
+		Ctx:   ctx,
 		Login: login,
 	}
 	mock.lockCreateToken.Lock()
@@ -71,16 +78,18 @@ func (mock *UseCaseMock) CreateToken(login LoginInputs) (string, error) {
 		)
 		return sOut, errOut
 	}
-	return mock.CreateTokenFunc(login)
+	return mock.CreateTokenFunc(ctx, login)
 }
 
 // CreateTokenCalls gets all the calls that were made to CreateToken.
 // Check the length with:
 //     len(mockedUseCase.CreateTokenCalls())
 func (mock *UseCaseMock) CreateTokenCalls() []struct {
+	Ctx   context.Context
 	Login LoginInputs
 } {
 	var calls []struct {
+		Ctx   context.Context
 		Login LoginInputs
 	}
 	mock.lockCreateToken.RLock()
@@ -90,10 +99,12 @@ func (mock *UseCaseMock) CreateTokenCalls() []struct {
 }
 
 // ValidatesToken calls ValidatesTokenFunc.
-func (mock *UseCaseMock) ValidatesToken(tokenString string) (entities.Token, error) {
+func (mock *UseCaseMock) ValidatesToken(ctx context.Context, tokenString string) (entities.Token, error) {
 	callInfo := struct {
+		Ctx         context.Context
 		TokenString string
 	}{
+		Ctx:         ctx,
 		TokenString: tokenString,
 	}
 	mock.lockValidatesToken.Lock()
@@ -106,16 +117,18 @@ func (mock *UseCaseMock) ValidatesToken(tokenString string) (entities.Token, err
 		)
 		return tokenOut, errOut
 	}
-	return mock.ValidatesTokenFunc(tokenString)
+	return mock.ValidatesTokenFunc(ctx, tokenString)
 }
 
 // ValidatesTokenCalls gets all the calls that were made to ValidatesToken.
 // Check the length with:
 //     len(mockedUseCase.ValidatesTokenCalls())
 func (mock *UseCaseMock) ValidatesTokenCalls() []struct {
+	Ctx         context.Context
 	TokenString string
 } {
 	var calls []struct {
+		Ctx         context.Context
 		TokenString string
 	}
 	mock.lockValidatesToken.RLock()
