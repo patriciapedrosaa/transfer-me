@@ -26,7 +26,8 @@ type CreateTransferResponse struct {
 }
 
 func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
-	accountOriginID := r.Context().Value(http_server.AccountID).(string)
+	ctx := r.Context()
+	accountOriginID := ctx.Value(http_server.AccountID).(string)
 
 	var body CreateTransferRequest
 	decoder := json.NewDecoder(r.Body)
@@ -52,13 +53,13 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	defer r.Body.Close()
 
-	originAccount, err := h.accountUseCase.GetById(accountOriginID)
+	originAccount, err := h.accountUseCase.GetById(ctx, accountOriginID)
 	if err != nil {
 		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidDataTransfer)
 		return
 	}
 
-	destinationAccountID, err := h.accountUseCase.GetById(body.DestinationAccountID)
+	destinationAccountID, err := h.accountUseCase.GetById(ctx, body.DestinationAccountID)
 	if err != nil {
 		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidDataTransfer)
 		return
@@ -70,7 +71,7 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		Amount:             body.Amount,
 	}
 
-	output, err := h.useCase.Create(input)
+	output, err := h.useCase.Create(ctx, input)
 
 	if err != nil {
 		switch {
@@ -88,7 +89,7 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.accountUseCase.UpdateBalance(input.OriginAccount.AccountID, input.DestinationAccount.AccountID, input.Amount)
+	err = h.accountUseCase.UpdateBalance(ctx, input.OriginAccount.AccountID, input.DestinationAccount.AccountID, input.Amount)
 	if err != nil {
 		http_server.ResponseError(w, http.StatusInternalServerError, ErrUnexpected)
 		return

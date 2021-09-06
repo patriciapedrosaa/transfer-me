@@ -15,9 +15,10 @@ type GetTransferResponse struct {
 }
 
 func (h Handler) Get(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	accountID := r.Context().Value(http_server.AccountID).(string)
 
-	transferList, err := h.useCase.GetTransfersByAccountID(accountID)
+	transferList, err := h.useCase.GetTransfersByAccountID(ctx, accountID)
 	if err != nil {
 		h.logger.Err(err).
 			Int("status_code", http.StatusBadRequest).
