@@ -1,0 +1,3 @@
+DROP INDEX IF EXISTS "id";
+DROP INDEX IF EXISTS "cpf";
+DROP INDEX IF EXISTS "origin_account_id";
