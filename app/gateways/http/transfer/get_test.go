@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer/usecase"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"

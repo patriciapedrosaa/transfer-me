@@ -59,7 +59,7 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	destinationAccountID, err := h.accountUseCase.GetById(ctx, body.DestinationAccountID)
+	destinationAccount, err := h.accountUseCase.GetById(ctx, body.DestinationAccountID)
 	if err != nil {
 		http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidDataTransfer)
 		return
@@ -67,7 +67,7 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	input := transfer.CreateTransferInput{
 		OriginAccount:      originAccount,
-		DestinationAccount: destinationAccountID,
+		DestinationAccount: destinationAccount,
 		Amount:             body.Amount,
 	}
 
@@ -89,7 +89,7 @@ func (h Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.accountUseCase.UpdateBalance(ctx, input.OriginAccount.AccountID, input.DestinationAccount.AccountID, input.Amount)
+	err = h.accountUseCase.UpdateBalance(ctx, originAccount.AccountID, destinationAccount.AccountID, input.Amount)
 	if err != nil {
 		http_server.ResponseError(w, http.StatusInternalServerError, ErrUnexpected)
 		return
