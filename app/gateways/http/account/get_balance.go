@@ -3,6 +3,7 @@ package account
 import (
 	"errors"
 	"github.com/gorilla/mux"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"net/http"
 )
@@ -24,6 +25,11 @@ func (h Handler) GetBalance(w http.ResponseWriter, r *http.Request) {
 				Int("status_code", http.StatusNotFound).
 				Msg("error occurred when try get balance")
 			http_server.ResponseError(w, http.StatusNotFound, "not found")
+		case usecase.ErrInvalidId:
+			h.logger.Err(err).
+				Int("status_code", http.StatusBadRequest).
+				Msg("error occurred when try get balance")
+			http_server.ResponseError(w, http.StatusBadRequest, "invalid id format")
 		default:
 			h.logger.Err(err).
 				Int("status_code", http.StatusInternalServerError).

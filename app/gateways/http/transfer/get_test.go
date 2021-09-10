@@ -42,6 +42,23 @@ func TestGet(t *testing.T) {
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 
+	t.Run("should return 400 and an error message when id is invalid", func(t *testing.T) {
+		handler := createGetFakeHandler(usecase.ErrInvalidId)
+		request, _ := http.NewRequest(http.MethodGet, "/transfers", nil)
+		request.Header = header
+		response := httptest.NewRecorder()
+		ctx := context.WithValue(request.Context(), http_server.AccountID, "642e-9792-4d6f-9a04-b401d")
+
+		http.HandlerFunc(handler.Get).ServeHTTP(response, request.WithContext(ctx))
+
+		got := response.Body.String()
+		expected := `{"error":"id format is invalid"}`
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Equal(t, expected, strings.TrimSpace(got))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
+	})
+
 	t.Run("should return 400 and an error message", func(t *testing.T) {
 		err := errors.New(ErrUnexpected)
 		handler := createGetFakeHandler(err)

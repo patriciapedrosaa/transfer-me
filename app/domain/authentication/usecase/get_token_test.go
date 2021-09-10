@@ -24,6 +24,13 @@ func TestGetToken(t *testing.T) {
 			wantError:      nil,
 		},
 		{
+			name:           "Should return err invalid id",
+			errCreateToken: nil,
+			errGetToken:    ErrInvalidId,
+			tokenID:        "12dae-cec4-4c18-aa-4e4a1bb59",
+			wantError:      ErrInvalidId,
+		},
+		{
 			name:           "Should return err not found",
 			errCreateToken: nil,
 			errGetToken:    ErrTokenNotFound,

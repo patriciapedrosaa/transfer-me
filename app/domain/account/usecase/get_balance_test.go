@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	fakeID      = "deef3e68-a8ed-4320-b09c-037eab340125"
-	wrongFakeID = "deef3e68-a8ed-4320-b09c-037eab340125"
+	fakeID        = "deef3e68-a8ed-4320-b09c-037eab340125"
+	wrongFakeID   = "deae5e61-a9ed-4311-b0cc-037eab340128"
+	invalidFakeID = "5e61-a9ed-4311-b0cc-037ea"
 )
 
 var fakeAccountGetBalanceTests = entities.Account{
@@ -35,6 +36,13 @@ func TestGetBalance(t *testing.T) {
 			id:            fakeID,
 			wantErr:       nil,
 			wantResult:    100,
+		},
+		{
+			name:          "should return an error because id is invalid",
+			repositoryErr: ErrInvalidId,
+			id:            invalidFakeID,
+			wantErr:       ErrInvalidId,
+			wantResult:    0,
 		},
 		{
 			name:          "should return an error because id is not found",

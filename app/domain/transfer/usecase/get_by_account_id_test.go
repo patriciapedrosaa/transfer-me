@@ -34,6 +34,12 @@ func TestGetTransfers(t *testing.T) {
 			},
 		},
 		{
+			name:           "should return err invalid id",
+			errGetTransfer: ErrInvalidId,
+			wantErr:        ErrInvalidId,
+			wantResult:     []entities.Transfer{},
+		},
+		{
 			name:           "should return err not found",
 			errGetTransfer: errors.New("not found"),
 			wantErr:        errors.New("not found"),
