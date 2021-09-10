@@ -4,5 +4,5 @@ CREATE TABLE IF NOT EXISTS "accounts" (
   "cpf" varchar NOT NULL,
   "secret" varchar NOT NULL,
   "balance" bigint NOT NULL,
-  "created_at" timestamptz NOT NULL DEFAULT (now())
+  "created_at" timestamptz NOT NULL
 );
