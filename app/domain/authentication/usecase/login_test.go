@@ -8,8 +8,7 @@ import (
 )
 
 func TestCheckLogin(t *testing.T) {
-	repository := generateFakeAuthenticationRepository(nil, nil)
-	authenticationUseCase := NewAuthenticationUseCase(&repository, zerolog.Logger{})
+	authenticationUseCase := NewAuthenticationUseCase(nil, zerolog.Logger{})
 	tests := []struct {
 		name      string
 		inputs    authentication.LoginInputs
