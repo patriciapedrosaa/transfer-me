@@ -19,10 +19,11 @@ const getTransferByIDQuery = `
 
 func (r Repository) GetTransfersByAccountID(ctx context.Context, accountID string) ([]entities.Transfer, error) {
 	rows, err := r.conn.Query(ctx, getTransferByIDQuery, accountID)
+	defer rows.Close()
+
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	var transfers []entities.Transfer
 	for rows.Next() {

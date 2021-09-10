@@ -19,12 +19,11 @@ const getAccountsQuery = `
 
 func (r Repository) GetAccounts(ctx context.Context) ([]entities.Account, error) {
 	rows, err := r.conn.Query(ctx, getAccountsQuery)
+	defer rows.Close()
 
 	if err != nil {
 		return nil, err
 	}
-
-	defer rows.Close()
 
 	var accounts []entities.Account
 	for rows.Next() {
