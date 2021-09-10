@@ -7,13 +7,12 @@ import (
 const updateBalanceQuery = `UPDATE accounts	SET balance = $1 WHERE id = $2;`
 
 func (r Repository) UpdateBalance(ctx context.Context, id string, value int) error {
-	_, err := r.GetById(ctx, id)
+	res, err := r.conn.Exec(ctx, updateBalanceQuery, value, id)
 	if err != nil {
 		return err
 	}
-
-	_, err = r.conn.Query(ctx, updateBalanceQuery, value, id)
-	if err != nil {
+	rowsUpdated := res.RowsAffected()
+	if rowsUpdated == 0 {
 		return err
 	}
 	return nil
