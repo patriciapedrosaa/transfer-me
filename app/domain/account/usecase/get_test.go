@@ -57,7 +57,7 @@ func TestGetAccounts(t *testing.T) {
 		{
 			name:          "should return an error because repository returned an unexpected err",
 			repositoryErr: unexpectedRepositoryErr,
-			wantErr:       nil,
+			wantErr:       unexpectedRepositoryErr,
 			wantResult:    []entities.Account{},
 		},
 	}
@@ -83,8 +83,8 @@ func TestGetAccounts(t *testing.T) {
 func generateFakeGetAccountRepository(err error) account.RepositoryMock {
 	if err != nil {
 		return account.RepositoryMock{
-			GetByCpfFunc: func(ctx context.Context, cpf string) (entities.Account, error) {
-				return entities.Account{}, err
+			GetAccountsFunc: func(ctx context.Context) ([]entities.Account, error) {
+				return nil, err
 			},
 		}
 	}
