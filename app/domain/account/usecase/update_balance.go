@@ -23,7 +23,7 @@ func (a Account) UpdateBalance(ctx context.Context, originAccountId, destination
 
 	err = a.repository.UpdateBalance(ctx, originAccountId, updatedOriginBalance)
 	if err != nil {
-		log.Error().Err(err).Msg("occurred when was trying update balance")
+		log.Error().Err(err).Msg("occurred when was trying to update balance")
 		return err
 	}
 	err = a.repository.UpdateBalance(ctx, destinationAccountId, updatedDestinationBalance)
