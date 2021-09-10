@@ -2,25 +2,31 @@ package usecase
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/entities"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 var (
 	fakeAccount1 = entities.Account{
-		Name:    "Ronald Weasley",
-		CPF:     "12345678910",
-		Secret:  "foobar",
-		Balance: 100,
+		AccountID: uuid.New().String(),
+		Name:      "Ronald Weasley",
+		CPF:       "12345678910",
+		Secret:    "foobar",
+		Balance:   100,
+		CreatedAt: time.Now(),
 	}
 	fakeAccount2 = entities.Account{
-		Name:    "Ginevra Weasley",
-		CPF:     "12345678911",
-		Secret:  "foobar",
-		Balance: 100,
+		AccountID: uuid.New().String(),
+		Name:      "Ginevra Weasley",
+		CPF:       "12345678911",
+		Secret:    "foobar",
+		Balance:   100,
+		CreatedAt: time.Now(),
 	}
 )
 

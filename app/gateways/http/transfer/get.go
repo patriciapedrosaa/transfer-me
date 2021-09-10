@@ -1,10 +1,13 @@
 package transfer
 
 import (
+	"github.com/patriciapedrosaa/transfer-me/app/domain/transfer/usecase"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"net/http"
 	"time"
 )
+
+var ErrInvalidId = "id format is invalid"
 
 type GetTransferResponse struct {
 	TransferID           string    `json:"id" validate:"required"`
@@ -20,10 +23,18 @@ func (h Handler) Get(w http.ResponseWriter, r *http.Request) {
 
 	transferList, err := h.useCase.GetTransfersByAccountID(ctx, accountID)
 	if err != nil {
-		h.logger.Err(err).
-			Int("status_code", http.StatusBadRequest).
-			Msg("error occurred when try get transfers")
-		http_server.ResponseError(w, http.StatusBadRequest, ErrUnexpected)
+		switch err {
+		case usecase.ErrInvalidId:
+			h.logger.Err(err).
+				Int("status_code", http.StatusBadRequest).
+				Msg("error occurred when try to get transfers")
+			http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidId)
+		default:
+			h.logger.Err(err).
+				Int("status_code", http.StatusBadRequest).
+				Msg("error occurred when try to get transfers")
+			http_server.ResponseError(w, http.StatusBadRequest, ErrUnexpected)
+		}
 		return
 	}
 

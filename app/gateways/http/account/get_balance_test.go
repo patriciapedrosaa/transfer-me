@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/patriciapedrosaa/transfer-me/app/domain/account"
+	"github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	http_server "github.com/patriciapedrosaa/transfer-me/app/gateways/http"
 	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
@@ -29,6 +30,23 @@ func TestHandler_GetBalance(t *testing.T) {
 
 		assert.Equal(t, http.StatusOK, response.Code)
 		assert.Equal(t, got, string(expected))
+		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
+	})
+
+	t.Run("should return 400 when account id is invalid", func(t *testing.T) {
+		handler := NewHandler(&account.UseCaseMock{GetBalanceFunc: func(ctx context.Context, id string) (int, error) {
+			return 0, usecase.ErrInvalidId
+		}}, zerolog.Logger{})
+		request, _ := http.NewRequest(http.MethodGet, "/accounts/id/balance", nil)
+		response := httptest.NewRecorder()
+
+		http.HandlerFunc(handler.GetBalance).ServeHTTP(response, request)
+
+		got := response.Body.String()
+		expected := `{"error":"invalid id format"}`
+
+		assert.Equal(t, http.StatusBadRequest, response.Code)
+		assert.Equal(t, expected, got)
 		assert.Equal(t, http_server.JsonContentType, response.Header().Get("Content-Type"))
 	})
 

@@ -36,6 +36,13 @@ func TestGetById(t *testing.T) {
 			wantResult:    fakeAccountGetByID,
 		},
 		{
+			name:          "should return err invalid id",
+			repositoryErr: nil,
+			id:            invalidFakeID,
+			wantErr:       ErrInvalidId,
+			wantResult:    entities.Account{},
+		},
+		{
 			name:          "should return err not found",
 			repositoryErr: ErrNotFound,
 			id:            uuid.New().String(),
