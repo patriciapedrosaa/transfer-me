@@ -62,6 +62,16 @@ Authenticate the user
   }
 ```
 
+###### Error message
+Otherwise, you will receive the following error message:
+
+```json
+ {
+   "error": "incorrect username or password"
+ }
+```
+
+
 #### Create Transfers
 Transfers from one Account to another.
 ###### Request
@@ -81,11 +91,33 @@ Transfers from one Account to another.
   }
 ```
 
+###### Error message
+Otherwise, you will receive the following error message:
+
+```json
+ {
+  "error": "invalid token"
+ }
+```
+
 #### List Transfers
 Get the list of transfers from the authenticated user.
 ###### Request
 - Path: `http://localhost:8000/transfers`
 - Method: `GET`
+
+## Environment variables
+
+The existing environment variables in the application are listed below followed by their descriptions:
+
+| Name                 |  Description            |
+| -------------------- | ----------------------- |
+|  ACCESS_SECRET       |  key to generate jwt    |
+|  POSTGRES_USERNAME   |  database user          |
+|  POSTGRES_PASSWORD   |  database secret        |
+|  POSTGRES_NAME       |  database name          |  
+|  DB_PORT             |  database port          |
+
 
 ## Stack
 
@@ -123,3 +155,12 @@ type UseCase interface {
 ```bash
 go generate ./app/domain/account/usecase.go
 ```
+
+## Starting
+Run the command at the root of the project: `$ go run main.go`
+
+## Unit Tests
+Run the command at the root of the project:
+`$ go test -v ./...`
+
+To see test coverage run: `$ go test -cover ./...`
