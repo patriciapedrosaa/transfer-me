@@ -15,12 +15,12 @@ func (a Account) GetById(ctx context.Context, id string) (entities.Account, erro
 
 	_, err := uuid.Parse(id)
 	if err != nil {
-		log.Error().Err(err).Msg(" error occurred when was trying get account for id.")
+		log.Error().Err(err).Msg("error occurred when was trying to parse id.")
 		return entities.Account{}, ErrInvalidId
 	}
 	account, err := a.repository.GetById(ctx, id)
 	if err != nil {
-		log.Error().Err(err).Msg(" error occurred when was trying get account for id.")
+		log.Error().Err(err).Msg("error occurred when was trying to get account for id.")
 		return entities.Account{}, ErrNotFound
 	}
 	log.Info().Msg("account was got with success!")
