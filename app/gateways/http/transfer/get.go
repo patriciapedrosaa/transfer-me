@@ -31,9 +31,9 @@ func (h Handler) Get(w http.ResponseWriter, r *http.Request) {
 			http_server.ResponseError(w, http.StatusBadRequest, ErrInvalidId)
 		default:
 			h.logger.Err(err).
-				Int("status_code", http.StatusBadRequest).
+				Int("status_code", http.StatusInternalServerError).
 				Msg("error occurred when try to get transfers")
-			http_server.ResponseError(w, http.StatusBadRequest, ErrUnexpected)
+			http_server.ResponseError(w, http.StatusInternalServerError, ErrUnexpected)
 		}
 		return
 	}
