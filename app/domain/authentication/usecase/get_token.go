@@ -15,7 +15,7 @@ func (a Authentication) getToken(ctx context.Context, id string) (entities.Token
 
 	_, err := uuid.Parse(id)
 	if err != nil {
-		log.Error().Err(err).Msg(" error occurred when was trying to get token for id")
+		log.Error().Err(err).Msg("error occurred when was trying to parse id")
 		return entities.Token{}, ErrInvalidId
 	}
 	token, err := a.authenticationRepository.GetToken(ctx, id)

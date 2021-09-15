@@ -18,7 +18,7 @@ func (t Transfer) GetTransfersByAccountID(ctx context.Context, accountID string)
 
 	_, err := uuid.Parse(accountID)
 	if err != nil {
-		log.Error().Err(err).Msg(" error occurred when was trying get transfer for account id.")
+		log.Error().Err(err).Msg("error occurred when was trying to parse id")
 		return []entities.Transfer{}, ErrInvalidId
 	}
 
