@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/patriciapedrosaa/transfer-me/app/common/configuration"
 	au "github.com/patriciapedrosaa/transfer-me/app/domain/account/usecase"
 	auth "github.com/patriciapedrosaa/transfer-me/app/domain/authentication/usecase"
 	tu "github.com/patriciapedrosaa/transfer-me/app/domain/transfer/usecase"
@@ -20,58 +20,41 @@ import (
 	"os"
 )
 
-const (
-	apiPort    = ":8000"
-	host       = "localhost"
-	user       = "postgres"
-	dbPassword = "postgres"
-	dbName     = "transfer-me"
-	dbPort     = 5432
-)
-
 func main() {
-	//Log
 	logger := zerolog.New(os.Stdout).With().Timestamp().Logger()
 
-	//Memory
+	cfg, err := configuration.LoadConfig()
+	if err != nil {
+		logger.Fatal().Err(err).Msg("unable to load app configuration")
+	}
 
-	//accountStorage := make(map[string]memory.Account)
-	//transferStorage := make(map[string][]memory.Transfer)
-	//authenticationStorage := make(map[string]memory.Token)
-	//memoryStorage := memory.NewMemoryStorage(accountStorage, transferStorage, authenticationStorage)
-
-	//Database
-	databaseUrl := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", user, dbPassword, host, dbPort, dbName)
-	pgConn := connectDB(databaseUrl)
+	pgConn := connectDB(logger, cfg.Postgres)
 	accountRepository := account_repository.NewRepository(pgConn)
 	transferRepository := transfer_repository.NewRepository(pgConn)
 	authenticationRepository := authentication_repository.NewRepository(pgConn)
 	defer pgConn.Close()
 
-	//Migrations
-	err := postgres.RunMigrations(databaseUrl)
+	err = postgres.RunMigrations(cfg.Postgres.URL())
 	if err != nil {
-		log.Fatal().Msg("error running postgres migrations")
+		logger.Fatal().Msg("error running postgres migrations")
 	}
 
-	//Use Cases
 	accountUseCase := au.NewAccountUseCase(accountRepository, logger)
 	transferUseCase := tu.NewTransferUseCase(transferRepository, logger)
 	authenticationUseCase := auth.NewAuthenticationUseCase(authenticationRepository, logger)
 
-	//Routes
 	accountHandler := account.NewHandler(accountUseCase, logger)
 	authHandler := auth_server.NewHandler(authenticationUseCase, accountUseCase, logger)
 	transferHandler := transfer_server.NewHandler(transferUseCase, accountUseCase, logger)
 	api := http.NewApi(accountHandler, authHandler, transferHandler, logger)
-	log.Info().Msgf("Starting api at port %s", apiPort)
-	api.Start(apiPort)
+	log.Info().Msgf("Starting api at port %s", cfg.API.Port)
+	api.Start(cfg.API.Port)
 }
 
-func connectDB(databaseUrl string) *pgxpool.Pool {
-	pool, err := pgxpool.Connect(context.Background(), databaseUrl)
+func connectDB(logger zerolog.Logger, postgres configuration.PostgresConfig) *pgxpool.Pool {
+	pool, err := pgxpool.Connect(context.Background(), postgres.DSN())
 	if err != nil {
-		log.Fatal().Err(err).Msg("Unable to connect to database")
+		logger.Fatal().Err(err).Msg("Unable to connect to database")
 	}
 	return pool
 }
