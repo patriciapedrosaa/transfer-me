@@ -110,13 +110,16 @@ Get the list of transfers from the authenticated user.
 
 The existing environment variables in the application are listed below followed by their descriptions:
 
-| Name                 |  Description            |
-| -------------------- | ----------------------- |
-|  ACCESS_SECRET       |  key to generate jwt    |
-|  POSTGRES_USERNAME   |  database user          |
-|  POSTGRES_PASSWORD   |  database secret        |
-|  POSTGRES_NAME       |  database name          |  
-|  DB_PORT             |  database port          |
+| Name                 |  Description              |
+| -------------------- | ------------------------- |
+|  ACCESS_SECRET       | Sign key to generate jwt  |
+|  API_PORT            | port to start application |
+|  DB_USER             | database user             |
+|  DB_PASSWORD         | database secret           |
+|  DB_NAME             | database name             |  
+|  DB_HOST             | database host             |
+|  DB_PORT             | database port             |
+|  DB_SSLMODE          | database SSL mode         |
 
 
 ## Stack
