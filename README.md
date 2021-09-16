@@ -197,4 +197,12 @@ To see the coverage run the command at the root of the project:
 $ go test -cover ./...
 ```
 
-To see test coverage run: `$ go test -cover ./...`
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
+
+## Acknowledgments
+
+
+Special thanks to all the authors of the libraries we use and the contents, videos and articles, on which I based this application.
+Thanks also to my mentors and code reviewers.
