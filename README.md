@@ -50,7 +50,7 @@ Get account balance
 - Method: `GET`
 
 #### Login
-Authenticate the user
+Authenticate the user with jwt token
 ###### Request
 - Path: `/login`
 - Method: `POST`
