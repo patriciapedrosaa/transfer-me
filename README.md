@@ -124,18 +124,45 @@ The existing environment variables in the application are listed below followed 
 
 ## Stack
 
-- [Golang](https://golang.org/) (*1.16.5*)
-- [Docker](https://docs.docker.com/get-docker/)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-- [Testify](github.com/stretchr/testify)
-- [Validator](https://github.com/go-playground/validator)
-- [JWT-GO](https://github.com/dgrijalva/jwt-go)
-- [Migrate](https://github.com/golang-migrate/migrate)
+- [golang](https://golang.org/) (*1.16.5*)
+- [docker](https://docs.docker.com/get-docker/)
+- [testify](github.com/stretchr/testify)
+- [validator](https://github.com/go-playground/validator)
+- [jwt](https://github.com/dgrijalva/jwt-go)
+- [migrate](https://github.com/golang-migrate/migrate)
 - [uuid](https://github.com/google/uuid)
 - [mux](https://github.com/gorilla/mux)
 - [pgx](https://github.com/jackc/pgx)
-- [Zerolog](https://github.com/rs/zerolog)
-- [Crypto](https://pkg.go.dev/golang.org/x/crypto)
+- [zerolog](https://github.com/rs/zerolog)
+- [crypto](https://pkg.go.dev/golang.org/x/crypto)
+
+To download it with Go previously downloaded:
+```bash
+$ go mod download
+```
+
+## Starting (Docker required)
+You can use the makefile to make it easier to build and run the application.
+A typical day to day would be:
+```bash
+$  make postgres
+```
+
+```bash
+$  make createdb
+```
+
+```bash
+$  make build
+```
+
+```bash
+$  make run
+```
+
+```bash
+$  make test
+```
 
 ## Hands On with Moq
 
@@ -159,11 +186,15 @@ type UseCase interface {
 go generate ./app/domain/account/usecase.go
 ```
 
-## Starting
-Run the command at the root of the project: `$ go run main.go`
-
 ## Unit Tests
-Run the command at the root of the project:
-`$ go test -v ./...`
+Run the command:
+```bash
+$  make test
+```
+
+To see the coverage run the command at the root of the project: 
+```bash
+$ go test -cover ./...
+```
 
 To see test coverage run: `$ go test -cover ./...`
