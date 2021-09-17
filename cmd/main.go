@@ -47,7 +47,7 @@ func main() {
 
 	accountUseCase := au.NewAccountUseCase(accountRepository, logger)
 	transferUseCase := tu.NewTransferUseCase(transferRepository, logger)
-	authenticationUseCase := auth.NewAuthenticationUseCase(authenticationRepository, logger)
+	authenticationUseCase := auth.NewAuthenticationUseCase(authenticationRepository, cfg.TokenKey, logger)
 
 	accountHandler := account.NewHandler(accountUseCase, logger)
 	authHandler := auth_server.NewHandler(authenticationUseCase, accountUseCase, logger)

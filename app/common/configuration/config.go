@@ -8,6 +8,8 @@ import (
 type Config struct {
 	API      APIConfig
 	Postgres PostgresConfig
+	TokenKey string `envconfig:"ACCESS_SECRET" required:"true"`
+	LogLevel string `envconfig:"LOG_LEVEL"`
 }
 
 type APIConfig struct {
