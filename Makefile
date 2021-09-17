@@ -13,6 +13,6 @@ test:
 build:
 	go build cmd/main.go
 run:
-	go run cmd/main.go
+	./run.sh
 
 .PHONY: postgres createdb dropdb migrateup migratedown test build run
