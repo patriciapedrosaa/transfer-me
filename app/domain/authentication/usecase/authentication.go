@@ -3,7 +3,6 @@ package usecase
 import (
 	"github.com/patriciapedrosaa/transfer-me/app/domain/authentication"
 	"github.com/rs/zerolog"
-	"os"
 )
 
 type Authentication struct {
@@ -12,10 +11,10 @@ type Authentication struct {
 	logger                   zerolog.Logger
 }
 
-func NewAuthenticationUseCase(authenticationRepository authentication.Repository, logger zerolog.Logger) Authentication {
+func NewAuthenticationUseCase(authenticationRepository authentication.Repository, accessSecret string, logger zerolog.Logger) Authentication {
 	return Authentication{
 		authenticationRepository: authenticationRepository,
-		accessSecret:             os.Getenv("ACCESS_SECRET"),
+		accessSecret:             accessSecret,
 		logger:                   logger,
 	}
 }

@@ -58,7 +58,7 @@ func TestValidatesToken(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			repository := generateFakeAuthenticationRepository(tt.errCreateToken, tt.errGetToken)
-			authenticationUseCase := NewAuthenticationUseCase(&repository, zerolog.Logger{})
+			authenticationUseCase := NewAuthenticationUseCase(&repository, "", zerolog.Logger{})
 			ctx := context.Background()
 
 			got, err := authenticationUseCase.ValidatesToken(ctx, tt.token)
