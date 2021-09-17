@@ -28,6 +28,12 @@ func main() {
 		logger.Fatal().Err(err).Msg("unable to load app configuration")
 	}
 
+	loglevel, err := zerolog.ParseLevel(cfg.LogLevel)
+	if err != nil {
+		logger.Fatal().Err(err).Msg("unable to load log level")
+	}
+	zerolog.SetGlobalLevel(loglevel)
+
 	pgConn := connectDB(logger, cfg.Postgres)
 	accountRepository := account_repository.NewRepository(pgConn)
 	transferRepository := transfer_repository.NewRepository(pgConn)
