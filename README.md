@@ -36,6 +36,14 @@ Create an account
     "secret": "mySecret"
   }
 ```
+###### Response error
+
+- 400 Bad Request
+```json
+  {
+    "type": "string"
+  }
+```
 
 #### List Accounts
 Get the list of accounts
@@ -43,11 +51,36 @@ Get the list of accounts
 - Path: `/accounts`
 - Method: `GET`
 
+###### Response error
+
+- 500 Internal server error
+```json
+  {
+    "type": "string"
+  }
+```
+
 #### Get Balance
 Get account balance
 ###### Request
 - Path: `/accounts/{account_id}/balance`
 - Method: `GET`
+
+###### Response errors
+
+- 404 Not Found
+```json
+  {
+    "type": "string"
+  }
+```
+
+- 500 Internal server error
+```json
+  {
+    "type": "string"
+  }
+```
 
 #### Login
 Authenticate the user with jwt token
@@ -62,15 +95,21 @@ Authenticate the user with jwt token
   }
 ```
 
-###### Error message
-Otherwise, you will receive the following error message:
+###### Response errors
 
+- 400 Bad Request
 ```json
  {
-   "error": "incorrect username or password"
+   "type":  "string"
  }
 ```
 
+- 500 Internal server error
+```json
+  {
+  "type": "string"
+}
+```
 
 #### Create Transfers
 Transfers from one Account to another.
@@ -91,13 +130,20 @@ Transfers from one Account to another.
   }
 ```
 
-###### Error message
-Otherwise, you will receive the following error message:
+###### Response errors
 
+- 400 Bad Request
 ```json
  {
-  "error": "invalid token"
+   "type":  "string"
  }
+```
+
+- 500 Internal server error
+```json
+  {
+  "type": "string"
+}
 ```
 
 #### List Transfers
@@ -105,6 +151,15 @@ Get the list of transfers from the authenticated user.
 ###### Request
 - Path: `http://localhost:8000/transfers`
 - Method: `GET`
+
+###### Response error
+
+- 400 Bad Request
+```json
+ {
+  "type": "string"
+ }
+```
 
 ## Environment variables
 
