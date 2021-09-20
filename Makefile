@@ -14,5 +14,8 @@ build:
 	go build cmd/main.go
 run:
 	./run.sh
+build-image:
+	@echo "==> Building Docker API image"
+	docker build . -t transfer-me
 
-.PHONY: postgres createdb dropdb migrateup migratedown test build run
+.PHONY: postgres createdb dropdb migrateup migratedown test build run build-image
