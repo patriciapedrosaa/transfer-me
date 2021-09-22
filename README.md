@@ -39,11 +39,31 @@ Create an account
 ###### Response error
 
 - 400 Bad Request
-```json
-  {
-    "type": "string"
-  }
-```
+  - When request body has invalid fields
+    ```json
+      {
+        "error": "invalid cpf"
+      }
+    ```
+
+  - When request body has invalid field types
+    ```json
+      {
+        "error": "invalid request payload"
+      }
+    ```
+  - When body is empty
+    ```json
+      {
+        "error": "invalid fields"
+      }
+    ```
+  - When account already exist
+    ```json
+      {
+        "error": "account already exist"
+      }
+    ```
 
 #### List Accounts
 Get the list of accounts
@@ -54,11 +74,11 @@ Get the list of accounts
 ###### Response error
 
 - 500 Internal server error
-```json
-  {
-    "type": "string"
-  }
-```
+    ```json
+      {
+        "error": "something went wrong"
+      }
+    ```
 
 #### Get Balance
 Get account balance
@@ -69,18 +89,18 @@ Get account balance
 ###### Response errors
 
 - 404 Not Found
-```json
-  {
-    "type": "string"
-  }
-```
+    ```json
+      {
+        "error": "not found"
+      }
+    ```
 
 - 500 Internal server error
-```json
-  {
-    "type": "string"
-  }
-```
+    ```json
+      {
+        "error": "something went wrong"
+      }
+    ```
 
 #### Login
 Authenticate the user with jwt token
@@ -98,18 +118,31 @@ Authenticate the user with jwt token
 ###### Response errors
 
 - 400 Bad Request
-```json
- {
-   "type":  "string"
- }
-```
+  - When the name or password is incorrect
+    ```json
+     {
+       "error":  "incorrect username or password"
+     }
+    ```
+  - When request body has invalid field types
+    ```json
+      {
+        "error": "invalid request payload"
+      }
+    ```
+  - When body is empty
+    ```json
+      {
+        "error": "invalid fields"
+      }
+    ```
 
 - 500 Internal server error
-```json
-  {
-  "type": "string"
-}
-```
+    ```json
+      {
+        "error": "unexpected error"
+      }
+    ```
 
 #### Create Transfers
 Transfers from one Account to another.
@@ -133,18 +166,62 @@ Transfers from one Account to another.
 ###### Response errors
 
 - 400 Bad Request
-```json
- {
-   "type":  "string"
- }
-```
+    - When authorization header is empty
+      ```json
+        {
+          "error": "empty authorization header"
+        }
+      ```
+    - When access token is empty
+      ```json
+        {
+          "error": "empty token"
+        }
+      ```
+    - When the authentication method is wrong
+      ```json
+        {
+          "error": "invalid auth method"
+        }
+      ```
+  - When request body has invalid field types
+    ```json
+      {
+        "error": "invalid request payload"
+      }
+    ```
+  - When request body is empty
+    ```json
+      {
+        "error": "invalid fields"
+      }
+    ```
+  - When destination cpf is not found
+    ```json
+      {
+        "error": "invalid transfer data"
+      }
+    ```
+  - When amount is invalid
+    ```json
+      {
+        "error": "the amount must be greater than zero"
+      }
+    ```
+
+- 403 Forbidden
+    ```json
+      {
+        "error": "invalid token"
+      }
+    ```
 
 - 500 Internal server error
-```json
-  {
-  "type": "string"
-}
-```
+    ```json
+      {
+        "error": "something went wrong"
+      }
+    ```
 
 #### List Transfers
 Get the list of transfers from the authenticated user.
@@ -154,12 +231,12 @@ Get the list of transfers from the authenticated user.
 
 ###### Response error
 
-- 400 Bad Request
-```json
- {
-  "type": "string"
- }
-```
+- 500 Internal server error
+    ```json
+      {
+        "error": "something went wrong"
+      }
+    ```
 
 ## Environment variables
 
