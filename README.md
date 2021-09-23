@@ -340,7 +340,11 @@ $  make createdb
 ```
 
 ```bash
-$  make build
+$  make build (local)
+```
+
+```bash
+$  make build-image (docker)
 ```
 
 ```bash
