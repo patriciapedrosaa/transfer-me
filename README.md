@@ -36,6 +36,16 @@ Create an account
     "secret": "mySecret"
   }
 ```
+
+###### Response successful
+- 201 Created
+    ```json
+      {
+        "id": "7f3412f2-97cd-46de-afa5-35f72f34f3d3",
+        "name": "gopher"
+      }
+    ```
+
 ###### Response error
 
 - 400 Bad Request
@@ -71,6 +81,16 @@ Get the list of accounts
 - Path: `/accounts`
 - Method: `GET`
 
+###### Response successful
+- 200 OK
+    ```json
+      {
+        "id": "7f3412f2-97cd-46de-afa5-35f72f34f3d3",
+        "name": "gopher",
+        "cpf": "12345678910"
+      }
+    ```
+
 ###### Response error
 
 - 500 Internal server error
@@ -85,6 +105,14 @@ Get account balance
 ###### Request
 - Path: `/accounts/{account_id}/balance`
 - Method: `GET`
+
+###### Response successful
+- 200 OK
+    ```json
+      {
+        "balance": 100
+      }
+    ```
 
 ###### Response errors
 
@@ -114,6 +142,14 @@ Authenticate the user with jwt token
     "secret": "mySecret"
   }
 ```
+
+###### Response successful
+- 201 Created
+    ```json
+      {
+        "Token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MzA5NTI5MjQsImlhdCI6MTYzMDk1MjAyNCwiaWQiOiI5OTRmZDJhOC1kMjJmLTQ2OTMtYWVkYS00Zjk1YmQ4MjIwMjUiLCJpc3MiOiJKV1QiLCJuYW1lIjoiZ29waGVyIiwic3ViIjoiODI0MmU4NWYtYzRhZS00MzY5LWI1Y2YtNTFmNWNlZjlmMzMwIn0.PYcE5gnv7qCBn153HMVnU0lAN7kI95YnugKmqNVhQU0"
+      }
+    ```
 
 ###### Response errors
 
@@ -163,6 +199,13 @@ Transfers from one Account to another.
   }
 ```
 
+- 201 Created
+    ```json
+      {
+        "id": "7f3412f2-97cd-46de-afa5-35f72f34f3d3"
+      }
+    ```
+  
 ###### Response errors
 
 - 400 Bad Request
@@ -228,6 +271,17 @@ Get the list of transfers from the authenticated user.
 ###### Request
 - Path: `http://localhost:8000/transfers`
 - Method: `GET`
+
+- 200 OK
+    ```json
+      {
+        "id": "7f3412f2-97cd-46de-afa5-35f72f34f3d3",
+        "amount": 50,
+        "account_origin_id": "014918d1-577c-4045-a415-a325bee3b1bd",
+        "account_destination_id": "6a00ac20-e07f-455f-a53c-37088c7b4277",
+        "created_at": "2021-09-23T11:20:55.774779-03:00"
+      }
+    ```
 
 ###### Response error
 
